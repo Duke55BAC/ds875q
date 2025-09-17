@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DS-875Q — Driver Knowledge Quiz</title>
+<style>
+  :root{
+    --bg:#0b1220; --paper:#0e1628; --card:#111c31; --ink:#e6edf7; --muted:#9fb0c9;
+    --accent:#3b82f6; --accent2:#22c55e; --warn:#f59e0b; --bad:#ef4444; --ring:#60a5fa;
+    --chip:#1b2946; --chipbd:#2a3c64; --goodbg:#05391a; --badbg:#3a0b0b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:radial-gradient(1200px 700px at 20% -10%, #122043 0%, #0b1220 45%, #0b1220 100%);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    color:var(--ink);
+  }
+  .page{max-width:980px; margin:30px auto; background:var(--paper); border:1px solid #1a2748; border-radius:14px; box-shadow:0 35px 80px rgba(0,0,0,.45); overflow:hidden}
+  .pad{padding:22px 22px}
+  .hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(180deg,#0f1a34,#0e1628);border-bottom:1px solid #1a2748;padding:18px 22px}
+  .title{font-weight:800;font-size:22px;letter-spacing:.3px}
+  .muted{color:var(--muted);font-size:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--chip); border:1px solid var(--chipbd); color:var(--ink); font-size:12px}
+  input[type=text], select{
+    width:100%; padding:10px 12px; border:1px solid #22345c; border-radius:10px; outline:none;
+    font-size:14px; background:#0a1326; color:#e6edf7;
+  }
+  input[type=text]:focus, select:focus{border-color:var(--ring); box-shadow:0 0 0 4px rgba(96,165,250,.16)}
+  .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
+  .btn.primary{background:linear-gradient(180deg,#4f8df8,#306ee9); color:#041226; box-shadow:0 10px 24px rgba(59,130,246,.3)}
+  .btn.ghost{background:#0d1a36; border:1px solid #20315a; color:#cfe2ff}
+  .btn.line{background:#0a1326; border:1px solid #22345c; color:#e6edf7}
+  .btn.success{background:linear-gradient(180deg,#2fd468,#17b152); color:#05240f; box-shadow:0 10px 24px rgba(34,197,94,.3)}
+  .divider{height:1px;background:#1a2748;margin:16px 0}
+  .count{font-size:12px;color:var(--muted)}
+  .notice{background:#1a243f;border:1px solid #2b3e72;color:#c7d6ff;padding:10px 12px;border-radius:10px;margin:10px 0;font-size:13px}
+  /* Exam layout */
+  .section-banner{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:900;letter-spacing:.8px;margin:4px 0 12px;color:#d8e6ff}
+  .section-tag{background:#0f2b5e;border:1px solid #3866c4;padding:6px 10px;border-radius:999px}
+  .q{margin:10px 0 14px; background:#0b1730; border:1px solid #21325a; border-radius:10px; padding:12px}
+  .qhead{display:flex;gap:8px;align-items:flex-start}
+  .qnum{font-weight:900;margin-right:8px;color:#8ab4ff}
+  .qtext{font-size:18px; line-height:1.45; font-weight:800} /* BOLD question */
+  .choices{margin-top:10px}
+  .choice{display:flex; align-items:flex-start; gap:10px; padding:7px 8px; border-radius:8px; cursor:pointer}
+  .choice:hover{background:#0f2148}
+  /* Square paper checkboxes (radios) */
+  .checkbox{position:relative; width:18px; height:18px; border:2px solid #6b85b7; border-radius:3px; flex:0 0 18px; margin-top:2px}
+  .choice input{appearance:none; width:0; height:0; position:absolute; left:-9999px}
+  .choice input:checked + .checkbox{border-color:#7cc4ff; box-shadow:inset 0 0 0 5px #7cc4ff}
+  .letter{width:18px; text-transform:lowercase; font-weight:800; color:#b9ccff; text-align:center; margin-right:2px}
+  .ctext{font-size:16px; line-height:1.45}
+  /* Pager */
+  .pager{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px}
+  .page-chip{font-weight:800}
+  /* Slide animation */
+  .slide{position:relative; overflow:hidden; min-height:200px}
+  .panel{will-change:transform,opacity; transition:transform .35s ease, opacity .35s ease}
+  .panel.enter-from-right{transform:translateX(30px); opacity:.01}
+  .panel.enter-from-left{transform:translateX(-30px); opacity:.01}
+  .panel.active{transform:translateX(0); opacity:1}
+  /* Score chips */
+  .chip{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px}
+  .chip.good{background:var(--goodbg); color:#86efac; border:1px solid #166534}
+  .chip.bad{background:var(--badbg); color:#fecaca; border:1px solid #7f1d1d}
+  .footnote{color:#9fb0c9; font-size:12px; text-align:center; margin:10px 0 18px}
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="hdr">
+      <div>
+        <div class="title">DS-875Q — Driver Knowledge Quiz</div>
+        <div class="muted">Paper-style • Bold questions • Section A & B • 5 per page • Slide transitions</div>
+      </div>
+      <div class="row">
+        <button class="btn line" id="btnLoadBank">Load Question Bank (JSON)</button>
+        <button class="btn line" id="btnConnectExcel">Connect Results Folder</button>
+      </div>
+    </div>
+
+    <!-- START -->
+    <div id="screenStart" class="pad">
+      <div class="row" style="gap:12px">
+        <div style="flex:1 1 320px">
+          <label class="muted">Driver Name</label>
+          <input id="inpName" type="text" placeholder="e.g., Sutton, Paul B."/>
+        </div>
+        <div style="flex:1 1 260px">
+          <label class="muted">Driver ID / License #</label>
+          <input id="inpID" type="text" placeholder="e.g., A123-456-789-000"/>
+        </div>
+        <div style="flex:0 0 220px">
+          <label class="muted">Section</label>
+          <select id="selSection">
+            <option value="ALL" selected>All (A15 + B5)</option>
+            <option value="A">Section A only</option>
+            <option value="B">Section B only</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="btnStart">Start</button>
+        <button class="btn ghost" id="btnResume">Resume</button>
+        <span class="pill" id="lblCountHint">Looking for DS-875Q_question_bank.json…</span>
+      </div>
+      <div id="banner" class="notice" style="display:none"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="screenQuiz" class="pad" style="display:none">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <div class="row">
+          <span id="lblName" class="pill"></span>
+          <span id="lblSection" class="pill"></span>
+          <span id="lblAttempt" class="pill"></span>
+        </div>
+        <div class="pill"><span id="lblProg">0 / 0</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-banner">
+        <span class="section-tag" id="secHeader">SECTION A</span>
+        <span class="count" id="secCount">(0/0)</span>
+      </div>
+
+      <div class="slide"><div id="quizPanel" class="panel active"></div></div>
+
+      <div class="pager">
+        <button class="btn ghost" id="btnPrev">← Previous</button>
+        <span class="pill page-chip" id="lblPage">Page 1 of 1</span>
+        <button class="btn primary" id="btnNext">Next →</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="row">
+        <button class="btn success" id="btnSubmit">Submit</button>
+        <button class="btn ghost" id="btnAbort">Abort</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="screenResult" class="pad" style="display:none">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <div class="row">
+          <span id="lblName2" class="pill"></span>
+          <span id="lblAttempt2" class="pill"></span>
+        </div>
+        <div id="lblScore" class="chip good">Score</div>
+      </div>
+      <div id="lblAB" class="muted" style="margin-top:6px"></div>
+      <div class="divider"></div>
+      <div class="row" style="gap:10px">
+        <button class="btn primary" id="btnNew">New Attempt</button>
+        <button class="btn line" id="btnDownloadCSV">Download CSV</button>
+      </div>
+      <div class="footnote" id="hostNote" style="display:none"></div>
+    </div>
+
+    <div class="footnote">Prefill via <code>#name=…&id=…</code> or <code>?name=…&id=…</code>. If local fetch is blocked, click “Load Question Bank (JSON)” once (it caches).</div>
+  </div>
+
+<!-- Optional inline bank (paste exported JSON array between the script tags below if you want a self-contained page)
+<script id="embeddedBank" type="application/json">[{"id":"Q1","section":"A","text":"…","choices":["A","B","C","D"],"answerIndex":1}]</script>
+-->
+
+<script>
+/* ===== State ===== */
+let BANK_A=[], BANK_B=[];
+const SAMPLE_A=[{id:"A-1",section:"A",text:"Most important reason to stay alert to a hazard is:",choices:[
+  "Call law enforcement.","You’ll have time to plan your escape if it becomes an emergency.","Help impaired drivers.","Accident reports are accurate."],answerIndex:1}];
+const SAMPLE_B=[{id:"B-1",section:"B",text:"Which of these is a hazard?",choices:[
+  "Parked cars with people inside","Bridge weight signs","Freshly swept street","Painted curbs"],answerIndex:0}];
+
+const PAGE_SIZE_A = 5;
+const PAGE_SIZE_B = 5;
+
+const $ = sel => document.querySelector(sel);
+const LS_BANK = 'ds875q:bank';
+const LS_LAST = 'ds875q:last';
+
+let attempt=null;
+/* attempt = {
+   name,id,mode:'ALL'|'A'|'B', stage:'A'|'B',
+   A:{items:[{q,sel}], page:0}, B:{items:[], page:0},
+   start, end, attemptIdx:1
+} */
+
+/* ===== Bank loading (auto, resilient) ===== */
+function splitBank(arr){
+  const a=[], b=[];
+  arr.forEach(q => (((q.section||'A')+'').toUpperCase()==='B' ? b : a).push(q));
+  BANK_A=a; BANK_B=b;
+}
+
+async function loadBankAuto(){
+  // 0) URL hash or query param bank=<url>
+  try{
+    const params = new URLSearchParams(location.hash.slice(1));
+    const sparams = new URLSearchParams(location.search);
+    const bankUrl = params.get('bank') || sparams.get('bank');
+    if (bankUrl){
+      const r=await fetch(bankUrl,{cache:'no-store'}); const arr=await r.json();
+      splitBank(arr); localStorage.setItem(LS_BANK, JSON.stringify(arr));
+      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from URL`;
+      return true;
+    }
+  }catch(e){}
+
+  // 1) Cached in browser
+  try{
+    const cached = localStorage.getItem(LS_BANK);
+    if (cached){
+      const arr=JSON.parse(cached); splitBank(arr);
+      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from browser`;
+      return true;
+    }
+  }catch(e){}
+
+  // 2) Inline <script id="embeddedBank">
+  try{
+    const s = document.getElementById('embeddedBank');
+    if (s && s.textContent.trim().startsWith('[')){
+      const arr = JSON.parse(s.textContent.trim()); splitBank(arr);
+      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) embedded`;
+      return true;
+    }
+  }catch(e){}
+
+  // 3) DS-875Q_question_bank.json (next to page)
+  try{
+    const res = await fetch('DS-875Q_question_bank.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('not found');
+    const arr = await res.json(); splitBank(arr);
+    $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length})`;
+    return true;
+  }catch(e){}
+
+  // 4) SAMPLE fallback
+  BANK_A = SAMPLE_A; BANK_B = SAMPLE_B;
+  $('#lblCountHint').textContent=`Loaded SAMPLE bank (A:${BANK_A.length} B:${BANK_B.length})`;
+  const b=$('#banner'); b.style.display='block';
+  b.textContent='Could not auto-load the question bank. If you opened this from disk and Edge blocked local file access, click “Load Question Bank (JSON)” once or open via http://localhost.';
+  return false;
+}
+
+// Manual loader (file picker) — caches for future auto-load
+$('#btnLoadBank')?.addEventListener('click', async ()=>{
+  try{
+    if(!window.showOpenFilePicker){
+      alert('Your browser blocked the picker here. Use http://localhost or Edge 86+.');
+      return;
+    }
+    const [fh] = await window.showOpenFilePicker({
+      types:[{description:'JSON', accept:{'application/json':['.json']}}], multiple:false
+    });
+    const file = await fh.getFile(); const text = await file.text(); const arr = JSON.parse(text);
+    splitBank(arr); localStorage.setItem(LS_BANK, JSON.stringify(arr));
+    alert(`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}). This will auto-load next time.`);
+    $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from browser`;
+  }catch(e){ console.warn(e); alert('No file selected or invalid JSON.'); }
+});
+
+/* ===== Attempt / Paging ===== */
+function shuffle(a){const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]} return b}
+
+function buildAttempt(name,id,mode){
+  let Aitems=[], Bitems=[];
+  if(mode==='ALL' || mode==='A'){
+    Aitems = shuffle(BANK_A).slice(0, Math.min(15,BANK_A.length)).map(q=>({q,sel:-1}));
+  }
+  if(mode==='ALL' || mode==='B'){
+    Bitems = shuffle(BANK_B).slice(0, Math.min(5,BANK_B.length)).map(q=>({q,sel:-1}));
+  }
+  attempt = {
+    name, id, mode,
+    stage: (mode==='B' ? 'B' : 'A'),   // track which section we’re on in ALL mode
+    A:{items:Aitems, page:0},
+    B:{items:Bitems, page:0},
+    start:Date.now(), end:0, attemptIdx:1
+  };
+  localStorage.setItem(LS_LAST, JSON.stringify(attempt));
+  return attempt;
+}
+
+function currentSection(){
+  // single-section modes are fixed
+  if (attempt.mode==='A') return 'A';
+  if (attempt.mode==='B') return 'B';
+  // ALL mode: use stage flag
+  return attempt.stage === 'B' ? 'B' : 'A';
+}
+
+function totalPagesFor(sec){
+  const arr = attempt[sec].items;
+  const psz = (sec==='A') ? PAGE_SIZE_A : PAGE_SIZE_B;
+  return Math.max(1, Math.ceil(arr.length / psz));
+}
+
+function setScreen(id){["screenStart","screenQuiz","screenResult"].forEach(x=>document.getElementById(x).style.display='none'); document.getElementById(id).style.display='block'}
+
+function renderQuiz(){
+  setScreen("screenQuiz");
+  $("#lblName").textContent=attempt.name||"";
+  $("#lblAttempt").textContent="Attempt #"+(attempt.attemptIdx||1);
+  $("#lblSection").textContent=(attempt.mode==='ALL'?"A then B":("Section "+attempt.mode));
+  updateProg();
+  renderPage('enter'); // initial paint
+}
+
+function renderPage(direction){
+  const sec = currentSection();
+  const psz = (sec==='A') ? PAGE_SIZE_A : PAGE_SIZE_B;
+  const page = attempt[sec].page;
+  const items = attempt[sec].items;
+  const start = page*psz;
+  const slice = items.slice(start, start+psz);
+
+  $("#secHeader").textContent = (sec==='A' ? "SECTION A" : "SECTION B");
+  $("#secCount").textContent = `(${Math.min(start+slice.length, items.length)}/${items.length})`;
+
+  const totalPages = totalPagesFor(sec);
+  $("#lblPage").textContent = `Page ${page+1} of ${totalPages}`;
+
+  // Build page panel
+  const panel = document.createElement('div');
+  panel.className = 'panel active';
+  panel.innerHTML = slice.map((it, idx)=>{
+    const n = start + idx + 1;
+    const letters = ['a','b','c','d','e','f'];
+    const choices = (it.q.choices||[]).map((c,i)=>`
+      <label class="choice">
+        <input type="radio" name="q${sec}_${start+idx}" value="${i}" ${it.sel===i?'checked':''}>
+        <span class="checkbox"></span>
+        <span class="letter">${letters[i]||''}.</span>
+        <span class="ctext">${escapeHtml(c||'')}</span>
+      </label>
+    `).join('');
+    return `
+      <div class="q">
+        <div class="qhead"><span class="qnum">${n}.</span><span class="qtext">${escapeHtml(it.q.text||'')}</span></div>
+        <div class="choices">${choices}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Wire changes
+  slice.forEach((it, idx)=>{
+    panel.querySelectorAll(`input[name="q${sec}_${start+idx}"]`).forEach(r=>{
+      r.addEventListener('change', e=>{
+        it.sel = parseInt(e.target.value,10);
+        localStorage.setItem(LS_LAST, JSON.stringify(attempt));
+        updateProg();
+      });
+    });
+  });
+
+  // Slide animation swap
+  const old = document.getElementById('quizPanel');
+  const wrapper = old.parentElement;
+  const newcomer = panel;
+  newcomer.classList.add(direction==='left'?'enter-from-left':'enter-from-right');
+  wrapper.appendChild(newcomer);
+  requestAnimationFrame(()=>{
+    newcomer.classList.add('active');
+    old.classList.remove('active');
+    setTimeout(()=>{ if(old && old!==newcomer) old.remove(); }, 350);
+  });
+  newcomer.id = 'quizPanel';
+
+  updateNavButtons();
+}
+
+function updateNavButtons(){
+  const sec = currentSection();
+  const onFirstOverall = (attempt.mode==='ALL')
+    ? (attempt.stage==='A' && attempt.A.page===0)
+    : (attempt[sec].page===0);
+
+  const onLastOverall = (attempt.mode==='ALL')
+    ? (attempt.stage==='B' && attempt.B.page === totalPagesFor('B')-1)
+    : (attempt[sec].page === totalPagesFor(sec)-1);
+
+  $('#btnPrev').disabled = onFirstOverall;
+  $('#btnNext').disabled = false;             // allow Next until last page
+  $('#btnSubmit').disabled = !onLastOverall;  // only enable Submit on very last page
+}
+
+function nextPage(){
+  const sec = currentSection();
+  const totalPages = totalPagesFor(sec);
+
+  if (attempt[sec].page < totalPages-1){
+    // next page within the same section
+    attempt[sec].page++;
+    renderPage('right');
+    return;
+  }
+
+  // at last page of this section
+  if (attempt.mode==='ALL' && sec==='A'){
+    // switch to Section B
+    attempt.stage = 'B';
+    attempt.B.page = 0;
+    renderPage('right');
+    return;
+  }
+
+  // already at last page of last section → nothing (Submit is enabled)
+}
+
+function prevPage(){
+  const sec = currentSection();
+
+  if (attempt.mode==='ALL' && sec==='B' && attempt.B.page===0){
+    // jump back into A’s last page
+    attempt.stage = 'A';
+    attempt.A.page = totalPagesFor('A') - 1;
+    renderPage('left');
+    return;
+  }
+
+  if (attempt[sec].page > 0){
+    attempt[sec].page--;
+    renderPage('left');
+  }
+}
+
+function updateProg(){
+  const total = (attempt.A.items.length + attempt.B.items.length) || attempt[attempt.mode]?.items?.length || 0;
+  const answeredA = attempt.A.items.filter(x=>x.sel>=0).length;
+  const answeredB = attempt.B.items.filter(x=>x.sel>=0).length;
+  const answered = answeredA + answeredB;
+  $("#lblProg").textContent = `${answered} / ${total}`;
+}
+
+/* ===== Grade & Results ===== */
+function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
+function grade(){
+  let correct=0, total=0;
+  const all = [].concat(attempt.A.items, attempt.B.items);
+  total = all.length;
+  all.forEach(it=>{ if(it.sel===it.q.answerIndex) correct++; });
+  const percent = total? Math.round(100*correct/total) : 0;
+  return {correct,total,percent};
+}
+function gradeBySection(){
+  const g={A:{correct:0,total:0},B:{correct:0,total:0}};
+  attempt.A.items.forEach(it=>{ g.A.total++; if(it.sel===it.q.answerIndex) g.A.correct++; });
+  attempt.B.items.forEach(it=>{ g.B.total++; if(it.sel===it.q.answerIndex) g.B.correct++; });
+  return g;
+}
+
+function showResults(){
+  const g=grade(), by=gradeBySection(), needA=12, needB=4;
+  const passA = by.A.total ? (by.A.correct >= Math.min(needA, by.A.total)) : (attempt.mode==='B' ? true : false);
+  const passB = by.B.total ? (by.B.correct >= Math.min(needB, by.B.total)) : (attempt.mode==='A' ? true : false);
+  const overall = (attempt.mode==='ALL') ? (passA && passB) : (attempt.mode==='A' ? passA : passB);
+
+  attempt.end = Date.now(); localStorage.setItem(LS_LAST, JSON.stringify(attempt));
+
+  setScreen("screenResult");
+  $("#lblName2").textContent=attempt.name||"";
+  $("#lblAttempt2").textContent="Attempt #"+(attempt.attemptIdx||1);
+  const scoreEl=$("#lblScore");
+  scoreEl.textContent=`Score: ${g.correct}/${g.total} (${g.percent}%) — ${overall?'PASS':'FAIL'}`;
+  scoreEl.className="chip " + (overall?'good':'bad');
+
+  const parts=[];
+  if (attempt.mode!=='B') parts.push(`Section A: ${by.A.correct}/${by.A.total} — ${by.A.total? (passA?'PASS':'FAIL') : 'N/A'}`);
+  if (attempt.mode!=='A') parts.push(`Section B: ${by.B.correct}/${by.B.total} — ${by.B.total? (passB?'PASS':'FAIL') : 'N/A'}`);
+  $("#lblAB").textContent = parts.join("   |   ");
+
+  saveAttemptToExcelFolder(g,by,passA,passB,overall);
+}
+
+/* ===== Results → Excel folder ===== */
+let resultsDirHandle=null;
+$('#btnConnectExcel').addEventListener('click', async ()=>{
+  try{
+    if(!('showDirectoryPicker' in window)) return alert("Folder access needs Edge on http://localhost. If blocked, use Download CSV.");
+    resultsDirHandle=await window.showDirectoryPicker();
+    const fh=await resultsDirHandle.getFileHandle('✅Edge_Connected.txt',{create:true});
+    const w=await fh.createWritable(); await w.write('Connected '+new Date().toISOString()); await w.close();
+    const note=$("#hostNote"); if(note){note.style.display='block'; note.textContent='Connected to results folder.'}
+    alert('Connected. A test file was created in the folder.');
+  }catch(e){console.warn(e); alert('Folder not selected or permission denied.');}
+});
+function csvQ(v){return '"' + String(v).replace(/"/g,'""') + '"'}
+async function saveAttemptToExcelFolder(g,by,passA,passB,overall){
+  if(!resultsDirHandle) return;
+  try{
+    const ts=new Date().toISOString().replace(/[:.]/g,'-');
+    const safe=(attempt.name||'attempt').replace(/[^a-z0-9_\- ]/gi,'_').slice(0,60);
+    const fn=`DS-875Q_${safe}_${ts}.csv`;
+    const fh=await resultsDirHandle.getFileHandle(fn,{create:true});
+    const w=await fh.createWritable();
+    const rows=[["Driver","ID","Section","Correct","Total","Percent","A_Correct","A_Total","A_Pass","B_Correct","B_Total","B_Pass","OverallPass","StartedISO","EndedISO","Attempt#"],
+                [attempt.name||"",attempt.id||"",attempt.mode||"",g.correct,g.total,g.percent,by.A.correct,by.A.total,passA?"PASS":"FAIL",by.B.correct,by.B.total,passB?"PASS":"FAIL",overall?"PASS":"FAIL",new Date(attempt.start).toISOString(),new Date(attempt.end||Date.now()).toISOString(),attempt.attemptIdx||1]];
+    const csv=rows.map(r=>r.map(csvQ).join(",")).join("\n"); await w.write(csv); await w.close();
+  }catch(e){console.warn("Save CSV failed",e);}
+}
+
+/* ===== UI flows ===== */
+document.getElementById("btnStart").addEventListener("click", async ()=>{
+  if(!BANK_A.length && !BANK_B.length) await loadBankAuto();
+  const name=$("#inpName").value.trim(), id=$("#inpID").value.trim(), section=$("#selSection").value;
+  if(!name) return alert("Enter driver name");
+  buildAttempt(name,id,section); renderQuiz();
+});
+document.getElementById("btnResume").addEventListener("click",()=>{
+  try{
+    const raw=localStorage.getItem(LS_LAST); if(!raw) return alert('No saved attempt on this device.');
+    attempt=JSON.parse(raw); renderQuiz();
+  }catch{ alert('Could not resume.'); }
+});
+document.getElementById("btnNext").addEventListener("click", nextPage);
+document.getElementById("btnPrev").addEventListener("click", prevPage);
+
+document.getElementById("btnSubmit").addEventListener("click", ()=>{
+  const total = (attempt.A.items.length + attempt.B.items.length);
+  const answered = attempt.A.items.filter(x=>x.sel>=0).length + attempt.B.items.filter(x=>x.sel>=0).length;
+  const un = total - answered;
+  if (un>0 && !confirm(`You have ${un} unanswered. Submit anyway?`)) return;
+  showResults();
+});
+
+document.getElementById("btnAbort").addEventListener("click",()=>{
+  if(confirm("Abort attempt?")){
+    localStorage.removeItem(LS_LAST); location.reload();
+  }
+});
+document.getElementById("btnNew").addEventListener("click",()=>{
+  localStorage.removeItem(LS_LAST); location.reload();
+});
+
+document.getElementById("btnDownloadCSV").addEventListener("click",()=>{
+  const g=grade(), by=gradeBySection(), needA=12, needB=4;
+  const passA = by.A.total ? (by.A.correct >= Math.min(needA, by.A.total)) : (attempt.mode==='B' ? true : false);
+  const passB = by.B.total ? (by.B.correct >= Math.min(needB, by.B.total)) : (attempt.mode==='A' ? true : false);
+  const overall = (attempt.mode==='ALL') ? (passA && passB) : (attempt.mode==='A' ? passA : passB);
+
+  const rows=[["Driver","ID","Section","Correct","Total","Percent","A_Correct","A_Total","A_Pass","B_Correct","B_Total","B_Pass","OverallPass","StartedISO","EndedISO","Attempt#"],
+              [attempt.name||"",attempt.id||"",attempt.mode||"",g.correct,g.total,g.percent,by.A.correct,by.A.total,passA?"PASS":"FAIL",by.B.correct,by.B.total,passB?"PASS":"FAIL",overall?"PASS":"FAIL",new Date(attempt.start).toISOString(),new Date(attempt.end||Date.now()).toISOString(),attempt.attemptIdx||1]];
+  const csv=rows.map(r=>r.map(csvQ).join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`DS-875Q_${(attempt.name||'attempt').replace(/[^a-z0-9_\- ]/gi,'_')}.csv`; a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* Prefill name/id from #hash or ?query */
+(function prefill(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  const q=new URLSearchParams(location.search);
+  const nm=h.get("name")||q.get("name"), id=h.get("id")||q.get("id");
+  if(nm) $("#inpName").value=decodeURIComponent(nm);
+  if(id) $("#inpID").value=decodeURIComponent(id);
+})();
+
+/* Boot */
+loadBankAuto();
+
+/* Helpful inline JS error banner */
+window.addEventListener('error', e=>{
+  const d=document.createElement('div');
+  d.style.cssText='background:#2a0e0e;border:1px solid #7f1d1d;color:#fecaca;padding:10px;margin:10px 22px;font:13px system-ui;border-radius:10px';
+  d.textContent='Error: '+ (e.message||e.error||e.filename||'Unknown');
+  document.querySelector('.page')?.prepend(d);
+});
+</script>
+</body>
+</html>

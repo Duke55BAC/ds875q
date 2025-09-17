@@ -1,0 +1,16 @@
+[
+  {
+    "id": "A-1",
+    "section": "A",
+    "text": "Most important reason for being alert to a hazard?",
+    "choices": ["Warn drivers behind you","Move quickly","Time to plan escape","Sound horn"],
+    "answerIndex": 2
+  },
+  {
+    "id": "B-1",
+    "section": "B",
+    "text": "Which is a hazard?",
+    "choices": ["Parked cars with people inside","Bridge weight signs","Freshly swept street","Painted curbs"],
+    "answerIndex": 0
+  }
+]
