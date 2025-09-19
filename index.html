@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DS-875Q — Driver Knowledge Quiz</title>
+  <title>DS-875Q — ABM Driver Knowledge Quiz</title>
   <style>
     :root{
       --bg:#0f172a;        /* slate-900 */
@@ -18,58 +18,115 @@
       --radius:18px;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       background:linear-gradient(180deg, #0b1225, #0f172a 35%, #0b1225 100%);
       color:var(--text);
+      overflow-x:hidden;
     }
     .wrap{max-width:980px; margin:0 auto; padding:24px;}
     .app-title{font-size:clamp(22px, 3vw, 34px); font-weight:800; letter-spacing:.5px; margin:6px 0 2px}
     .sub{color:var(--muted); font-size:14px}
-    .card{background:rgba(17,24,39,.9); border:1px solid rgba(148,163,184,.15); border-radius:var(--radius); padding:18px; box-shadow:0 15px 40px rgba(0,0,0,.35)}
+    .sigline{color:var(--muted); font-size:12px; opacity:.9}
+    .brand{display:inline-flex; align-items:center; gap:10px}
+    .brand .tag{font-weight:800; color:#67e8f9; letter-spacing:.4px; background:rgba(103,232,249,.08); border:1px solid rgba(103,232,249,.25); padding:4px 8px; border-radius:999px}
+
+    .card{
+      background:rgba(17,24,39,.9);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:0 15px 40px rgba(0,0,0,.35);
+      animation: pop .35s ease;
+    }
+    @keyframes pop{from{transform:scale(.985); opacity:.0} to{transform:scale(1); opacity:1}}
+
     .grid{display:grid; gap:16px}
     .grid.cols-2{grid-template-columns:1fr 1fr}
     @media (max-width:780px){ .grid.cols-2{grid-template-columns:1fr}}
+
     label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
     input[type=text]{
       width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(148,163,184,.25); background:#0b1225; color:var(--text);
-      outline:none; transition:.2s border-color, .2s box-shadow;
+      outline:none; transition:.2s border-color, .2s box-shadow, .2s transform;
     }
-    input[type=text]:focus{ border-color:var(--ring); box-shadow:0 0 0 4px rgba(96,165,250,.2)}
-    .btn{appearance:none; border:0; background:var(--accent); color:#05130a; font-weight:700; padding:12px 16px; border-radius:12px; cursor:pointer; box-shadow:0 6px 20px rgba(34,197,94,.35);}    
-    .btn:hover{filter:brightness(1.05)}
-    .btn.secondary{ background:var(--accent-2); color:#041226; box-shadow:0 6px 20px rgba(59,130,246,.3)}
-    .btn.ghost{ background:transparent; border:1px solid rgba(148,163,184,.25); color:var(--text)}
+    input[type=text]:focus{ border-color:var(--ring); box-shadow:0 0 0 4px rgba(96,165,250,.2); transform:translateY(-1px)}
+
+    .btn{appearance:none; border:0; background:var(--accent); color:#05130a; font-weight:800; padding:12px 16px; border-radius:12px; cursor:pointer; box-shadow:0 10px 24px rgba(34,197,94,.25); transition:transform .12s ease, filter .15s ease}
+    .btn:hover{filter:brightness(1.05); transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{ background:var(--accent-2); color:#041226; box-shadow:0 10px 24px rgba(59,130,246,.25)}
+    .btn.ghost{ background:transparent; border:1px solid rgba(148,163,184,.25); color:var(--text); box-shadow:none}
     .btn.warn{ background:var(--warn); color:#160f00 }
     .btn.danger{ background:var(--danger); color:#2b0707 }
+
     .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
     .space{height:10px}
-    .question{ border:1px solid rgba(148,163,184,.2); border-radius:16px; padding:16px; background:#0b1326; }
+
+    .question{
+      border:1px solid rgba(148,163,184,.2);
+      border-radius:16px; padding:16px; background:#0b1326;
+      animation: fadeSlide .35s ease;
+    }
+    @keyframes fadeSlide{from{transform:translateY(6px); opacity:0} to{transform:translateY(0); opacity:1}}
     .q-head{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between }
     .q-numb{ font-weight:800; background:#0a0f1d; border:1px solid rgba(148,163,184,.25); color:#93c5fd; padding:4px 10px; border-radius:999px; font-size:12px; letter-spacing:.5px }
     .q-text{ font-size:18px; line-height:1.45; font-weight:700;}
     .choices{ margin-top:12px; display:grid; gap:8px }
-    .choice{ position:relative; display:flex; gap:10px; align-items:flex-start; border:1px solid rgba(148,163,184,.2); background:#0c162d; padding:10px 12px; border-radius:12px; cursor:pointer; }
-    .choice:hover{ border-color:var(--ring)}
+    .choice{
+      position:relative; display:flex; gap:10px; align-items:flex-start; border:1px solid rgba(148,163,184,.2); background:#0c162d; padding:10px 12px; border-radius:12px; cursor:pointer; transition:border-color .15s ease, transform .12s ease;
+    }
+    .choice:hover{ border-color:var(--ring); transform:translateY(-1px)}
     .choice input{ margin-top:2px }
     .meta{ color:var(--muted); font-size:12px }
+
     .progress{ height:10px; background:rgba(148,163,184,.2); border-radius:999px; overflow:hidden; border:1px solid rgba(148,163,184,.2) }
-    .progress > span{ display:block; height:100%; background:linear-gradient(90deg, var(--accent), #16a34a); width:0 }
+    .progress > span{ display:block; height:100%; background:linear-gradient(90deg, var(--accent), #16a34a); width:0; transition:width .25s ease }
+
     .pill{ padding:6px 10px; border:1px solid rgba(148,163,184,.25); border-radius:999px; font-size:12px; color:var(--muted) }
-    .pill-good{ color:#05240f; background:rgba(34,197,94,.85); border-color:transparent }
-    .pill-bad{ color:#2b0707; background:rgba(239,68,68,.9); border-color:transparent }
+    .pill-good{ color:#05240f; background:rgba(34,197,94,.9); border-color:transparent }
+    .pill-bad{ color:#2b0707; background:rgba(239,68,68,.95); border-color:transparent }
+
     .hidden{ display:none }
     .divider{ height:1px; background:rgba(148,163,184,.2); margin:10px 0 }
     .sectionLabel{ font-weight:800; color:#67e8f9; margin-bottom:6px }
+
     .pager{display:flex; justify-content:space-between; gap:10px; margin-top:12px}
+
+    /* Page mount animation */
+    .mount-anim{ animation: fadeSlide .35s ease }
+
+    /* Modal (message box) */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(2,6,23,.65);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      z-index:50; animation: fadeIn .18s ease;
+    }
+    @keyframes fadeIn{from{opacity:0} to{opacity:1}}
+    .modal{
+      width:min(720px, 92vw); background:#0b1326; border:1px solid rgba(148,163,184,.25);
+      border-radius:18px; box-shadow:0 30px 80px rgba(0,0,0,.6); overflow:hidden;
+      animation: pop .25s ease;
+    }
+    .modal-h{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid rgba(148,163,184,.18)}
+    .modal-h .ttl{ font-weight:900; letter-spacing:.4px }
+    .modal-b{ padding:16px }
+    .modal-f{ padding:12px 16px; background:#0b1225; border-top:1px solid rgba(148,163,184,.18); display:flex; justify-content:flex-end; gap:10px }
+
+    /* Confetti canvas sits above content */
+    #fxConfetti{ position:fixed; inset:0; pointer-events:none; z-index:60 }
   </style>
 </head>
 <body>
+  <canvas id="fxConfetti" class="hidden"></canvas>
+
   <div class="wrap">
     <div class="row" style="justify-content:space-between; align-items:center">
       <div>
-        <div class="app-title">DS-875Q Driver Knowledge Quiz</div>
+        <div class="app-title">DS-875Q — <span class="brand"><span class="tag">ABM</span> Driver Knowledge Quiz</span></div>
         <div class="sub">Mobile-friendly • Randomized • 5-per-page • A/B labeling</div>
+        <div class="sigline">Paul Sutton — 19A Certified Examiner</div>
       </div>
     </div>
 
@@ -105,7 +162,7 @@
         </div>
       </div>
       <div class="divider"></div>
-      <div id="quizMount" class="grid"></div>
+      <div id="quizMount" class="grid mount-anim"></div>
       <div class="pager">
         <button class="btn ghost" id="btnPrev">← Previous</button>
         <button class="btn secondary" id="btnNext">Next →</button>
@@ -136,284 +193,426 @@
   </div>
 
   <script>
-   // Correct Google Form submission URL
+/* ============================
+   Admin destinations (Google Form)
+============================ */
 const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScpnw5p7_tSVVDEHnyRBXC8N3fhBPh9mB2fYFOQMa8up_txLw/formResponse";
 
-// Correct entry IDs from your form
 const ENTRY = {
-  name:     "entry.335663759",
-  license:  "entry.278148074",
-  secA:     "entry.1666776910",
-  secB:     "entry.373048782",
-  total:    "entry.2074083010",
-  overall:  "entry.1567472785",
-  started:  "entry.2140359809",
-  ended:    "entry.1657520346"
+  name:    "entry.335663759",
+  license: "entry.278148074",
+  secA:    "entry.1666776910",
+  secB:    "entry.373048782",
+  total:   "entry.2074083010",
+  overall: "entry.1567472785",
+  started: "entry.2140359809",
+  ended:   "entry.1657520346"
 };
 
-    };
+function toFormBody(obj){
+  return Object.entries(obj)
+    .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v==null?'':String(v))).join('&');
+}
+async function postSubmissionToGoogleForm(payload){
+  try{
+    await fetch(FORM_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+      body: toFormBody(payload)
+    });
+    console.log('✅ Sent to Google Form');
+  }catch(e){ console.warn('Form post failed:', e); }
+}
 
-    function toFormBody(obj){
-      return Object.entries(obj)
-        .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v==null?'':String(v))).join('&');
-    }
-    async function postSubmissionToGoogleForm(payload){
-      try{
-        await fetch(FORM_URL, {
-          method:'POST', mode:'no-cors',
-          headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
-          body: toFormBody(payload)
-        });
-        console.log('✅ Sent to Google Form');
-      }catch(e){ console.warn('Form post failed:', e); }
-    }
+/* ============================
+   Minimal quiz engine (+ polish)
+============================ */
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
 
-    /* ============================
-       Minimal quiz engine
-    ============================ */
-    const $ = s=>document.querySelector(s);
-    const $$ = s=>Array.from(document.querySelectorAll(s));
+function hash32(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0;}
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
+function shuffle(arr, rng=Math.random){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-    function hash32(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0;}
-    function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
-    function shuffle(arr, rng=Math.random){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const PER_PAGE = 5;
+const MAX_ATTEMPTS = 2;
+const LS_PREFIX = 'ds875q';
+let BANK = [];
+let attempt = null; // {name,id,items:[{q,choices,ansIdx,sel}], start, page, attemptIdx}
 
-    const PER_PAGE = 5;
-    const MAX_ATTEMPTS = 2;
-    const LS_PREFIX = 'ds875q';
-    let BANK = [];
-    let attempt = null; // {name,id,items:[{q,choices,ansIdx,sel}], start, page, attemptIdx}
+async function loadBank(){
+  // prefer external JSON, fallback to embedded
+  try{
+    const r = await fetch('DS-875Q_question_bank.json', {cache:'no-store'});
+    if (r.ok){ BANK = await r.json(); console.log('Loaded bank from JSON:', BANK.length); return; }
+  }catch{}
+  const embedded = document.getElementById('embeddedBank');
+  if (embedded){ BANK = JSON.parse(embedded.textContent.trim()); console.log('Loaded embedded bank:', BANK.length); }
+}
 
-    async function loadBank(){
-      // prefer external JSON, fallback to embedded
-      try{
-        const r = await fetch('DS-875Q_question_bank.json', {cache:'no-store'});
-        if (r.ok){ BANK = await r.json(); console.log('Loaded bank from JSON:', BANK.length); return; }
-      }catch{}
-      const embedded = document.getElementById('embeddedBank');
-      if (embedded){ BANK = JSON.parse(embedded.textContent.trim()); console.log('Loaded embedded bank:', BANK.length); }
-    }
+function buildAttempt(name,id){
+  const seed = hash32(`${name}|${id}|${Date.now()}`);
+  const rng = mulberry32(seed);
+  const poolA = BANK.filter(q=>String(q.section).toUpperCase()==='A');
+  const poolB = BANK.filter(q=>String(q.section).toUpperCase()==='B');
 
-    function buildAttempt(name,id){
-      // A15 + B5 selection (or whatever bank has), answer choices shuffled
-      const seed = hash32(`${name}|${id}|${Date.now()}`);
-      const rng = mulberry32(seed);
-      const poolA = BANK.filter(q=>String(q.section).toUpperCase()==='A');
-      const poolB = BANK.filter(q=>String(q.section).toUpperCase()==='B');
+  const pickA = shuffle(poolA,rng).slice(0, Math.min(15, poolA.length));
+  const pickB = shuffle(poolB,rng).slice(0, Math.min(5,  poolB.length));
+  const picked = pickA.concat(pickB);
 
-      const pickA = shuffle(poolA,rng).slice(0, Math.min(15, poolA.length));
-      const pickB = shuffle(poolB,rng).slice(0, Math.min(5,  poolB.length));
-      const picked = pickA.concat(pickB);
+  const items = picked.map(q=>{
+    const ch = shuffle(q.choices, rng);
+    const ansIdx = ch.findIndex(x=>x===q.choices[q.answerIndex]);
+    return { q, choices: ch, ansIdx, sel:-1 };
+  });
 
-      const items = picked.map(q=>{
-        const ch = shuffle(q.choices, rng);
-        const ansIdx = ch.findIndex(x=>x===q.choices[q.answerIndex]);
-        return { q, choices: ch, ansIdx, sel:-1 };
+  const key = `${LS_PREFIX}|${name}|${id}|count`;
+  const soFar = parseInt(localStorage.getItem(key)||'0',10);
+  localStorage.setItem(key, String(soFar+1));
+
+  attempt = { name, id, items, start:Date.now(), page:0, attemptIdx: soFar+1 };
+}
+
+function attemptsFor(name,id){
+  const key = `${LS_PREFIX}|${name}|${id}|count`;
+  return parseInt(localStorage.getItem(key)||'0',10);
+}
+
+function scrollTopSmooth(){
+  // ensures each page starts at the top of the viewport
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderQuizPage(){
+  $("#screenStart").classList.add("hidden");
+  $("#screenResult").classList.add("hidden");
+  $("#screenQuiz").classList.remove("hidden");
+
+  $("#lblCandidate").textContent = attempt.name || "Unknown";
+  $("#lblSection").textContent = "A + B (20 questions)";
+  $("#lblAttempt").textContent = `Attempt #${attempt.attemptIdx}`;
+
+  const startIdx = attempt.page * PER_PAGE;
+  const pageItems = attempt.items.slice(startIdx, startIdx + PER_PAGE);
+
+  const mount = $("#quizMount");
+  mount.innerHTML = "";
+  mount.classList.remove("mount-anim"); // restart animation
+  void mount.offsetWidth;
+  mount.classList.add("mount-anim");
+
+  pageItems.forEach((it, idx)=>{
+    const abs = startIdx + idx;
+    const div = document.createElement('div');
+    div.className = "question";
+    div.innerHTML = `
+      <div class="q-head">
+        <div class="q-numb">#${abs+1}</div>
+        <div class="sectionLabel">Section ${it.q.section}</div>
+      </div>
+      <div class="q-text">${escapeHtml(it.q.text)}</div>
+      <div class="choices">
+        ${it.choices.map((c,i)=>`
+          <label class="choice">
+            <input type="radio" name="q${abs}" value="${i}" ${it.sel===i?"checked":""}/>
+            <div>${escapeHtml(String.fromCharCode(97+i)+". "+c)}</div>
+          </label>
+        `).join("")}
+      </div>
+    `;
+    mount.appendChild(div);
+  });
+
+  // wire radios
+  $$("input[type=radio]").forEach(r=>{
+    r.addEventListener('change', e=>{
+      const nm = e.target.name; // q#
+      const abs = parseInt(nm.slice(1),10);
+      attempt.items[abs].sel = parseInt(e.target.value,10);
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+  $("#btnPrev").disabled = attempt.page===0;
+  $("#btnNext").disabled = (startIdx + PER_PAGE) >= attempt.items.length;
+
+  // start this page at the top
+  scrollTopSmooth();
+}
+
+function updateProgress(){
+  const total = attempt.items.length;
+  const answered = attempt.items.filter(x=>x.sel>=0).length;
+  $("#lblProg").textContent = `${answered} / ${total}`;
+  $("#bar").style.width = Math.round(100*answered/total) + "%";
+}
+
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function breakdownBySection(att){
+  const by = {A:{correct:0,total:0}, B:{correct:0,total:0}};
+  att.items.forEach(it=>{
+    const sec = String(it.q.section||'A').toUpperCase();
+    if (!by[sec]) return;
+    by[sec].total++;
+    if (it.sel===it.ansIdx) by[sec].correct++;
+  });
+  return by;
+}
+function totalGrade(att){
+  const t = att.items.length;
+  const c = att.items.reduce((n,it)=> n + (it.sel===it.ansIdx?1:0), 0);
+  return {correct:c, total:t, percent: t? Math.round(100*c/t):0};
+}
+
+/* ======= Pretty message box (modal) ======= */
+function showModal({title="Notice", html="", buttons=[{label:"OK", cls:"btn", onClick:closeModal}] , tone="neutral"}={}){
+  const bd = document.createElement('div');
+  bd.className = 'modal-backdrop';
+  const box = document.createElement('div');
+  box.className = 'modal';
+  box.innerHTML = `
+    <div class="modal-h">
+      <div class="ttl">${escapeHtml(title)}</div>
+      <button class="btn ghost" id="xClose">✕</button>
+    </div>
+    <div class="modal-b">${html}</div>
+    <div class="modal-f"></div>
+  `;
+  bd.appendChild(box);
+  document.body.appendChild(bd);
+
+  const footer = box.querySelector('.modal-f');
+  buttons.forEach(b=>{
+    const el = document.createElement('button');
+    el.className = b.cls || 'btn';
+    el.textContent = b.label || 'OK';
+    el.addEventListener('click', ()=>{ (b.onClick||closeModal)(); });
+    footer.appendChild(el);
+  });
+  box.querySelector('#xClose').addEventListener('click', closeModal);
+
+  function closeModal(){
+    bd.remove();
+  }
+  return {close: closeModal, root: bd};
+}
+
+/* ======= Confetti (pass animation) ======= */
+const confetti = {
+  running:false, tid:null,
+  start(durationMs=2500){
+    const cvs = document.getElementById('fxConfetti');
+    const ctx = cvs.getContext('2d');
+    cvs.classList.remove('hidden');
+
+    let W=window.innerWidth, H=window.innerHeight;
+    cvs.width=W; cvs.height=H;
+    const N = Math.floor(W/12);
+    const parts = Array.from({length:N}).map(()=>({
+      x: Math.random()*W,
+      y: -20-Math.random()*H,
+      w: 6+Math.random()*6,
+      h: 8+Math.random()*10,
+      vy: 2+Math.random()*3,
+      vx: -1+Math.random()*2,
+      rot: Math.random()*Math.PI,
+      vr: -0.2 + Math.random()*0.4,
+      col: `hsl(${Math.floor(Math.random()*360)},95%,60%)`
+    }));
+
+    const t0 = performance.now();
+    this.running=true;
+
+    const loop = (t)=>{
+      if (!this.running) return;
+      ctx.clearRect(0,0,W,H);
+      parts.forEach(p=>{
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        if (p.y > H+20) { p.y = -20; p.x = Math.random()*W; }
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.col;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
       });
-
-      const key = `${LS_PREFIX}|${name}|${id}|count`;
-      const soFar = parseInt(localStorage.getItem(key)||'0',10);
-      localStorage.setItem(key, String(soFar+1));
-
-      attempt = { name, id, items, start:Date.now(), page:0, attemptIdx: soFar+1 };
-    }
-
-    function attemptsFor(name,id){
-      const key = `${LS_PREFIX}|${name}|${id}|count`;
-      return parseInt(localStorage.getItem(key)||'0',10);
-    }
-
-    function renderQuizPage(){
-      $("#screenStart").classList.add("hidden");
-      $("#screenResult").classList.add("hidden");
-      $("#screenQuiz").classList.remove("hidden");
-
-      $("#lblCandidate").textContent = attempt.name || "Unknown";
-      $("#lblSection").textContent = "A + B (20 questions)";
-      $("#lblAttempt").textContent = `Attempt #${attempt.attemptIdx}`;
-
-      const startIdx = attempt.page * PER_PAGE;
-      const pageItems = attempt.items.slice(startIdx, startIdx + PER_PAGE);
-
-      const mount = $("#quizMount");
-      mount.innerHTML = "";
-
-      pageItems.forEach((it, idx)=>{
-        const abs = startIdx + idx;
-        const div = document.createElement('div');
-        div.className = "question";
-        div.innerHTML = `
-          <div class="q-head">
-            <div class="q-numb">#${abs+1}</div>
-            <div class="sectionLabel">Section ${it.q.section}</div>
-          </div>
-          <div class="q-text">${escapeHtml(it.q.text)}</div>
-          <div class="choices">
-            ${it.choices.map((c,i)=>`
-              <label class="choice">
-                <input type="radio" name="q${abs}" value="${i}" ${it.sel===i?"checked":""}/>
-                <div>${escapeHtml(String.fromCharCode(97+i)+". "+c)}</div>
-              </label>
-            `).join("")}
-          </div>
-        `;
-        mount.appendChild(div);
-      });
-
-      // wire radios
-      $$("input[type=radio]").forEach(r=>{
-        r.addEventListener('change', e=>{
-          const nm = e.target.name; // q#
-          const abs = parseInt(nm.slice(1),10);
-          attempt.items[abs].sel = parseInt(e.target.value,10);
-          updateProgress();
-        });
-      });
-
-      const total = attempt.items.length;
-      const answered = attempt.items.filter(x=>x.sel>=0).length;
-      $("#lblProg").textContent = `${answered} / ${total}`;
-      $("#bar").style.width = Math.round(100*answered/total) + "%";
-
-      $("#btnPrev").disabled = attempt.page===0;
-      $("#btnNext").disabled = (startIdx + PER_PAGE) >= total;
-    }
-
-    function updateProgress(){
-      const total = attempt.items.length;
-      const answered = attempt.items.filter(x=>x.sel>=0).length;
-      $("#lblProg").textContent = `${answered} / ${total}`;
-      $("#bar").style.width = Math.round(100*answered/total) + "%";
-    }
-
-    function escapeHtml(s){
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    }
-
-    function breakdownBySection(attempt){
-      const by = {A:{correct:0,total:0}, B:{correct:0,total:0}};
-      attempt.items.forEach(it=>{
-        const sec = String(it.q.section||'A').toUpperCase();
-        if (!by[sec]) return;
-        by[sec].total++;
-        if (it.sel===it.ansIdx) by[sec].correct++;
-      });
-      return by;
-    }
-    function totalGrade(attempt){
-      const t = attempt.items.length;
-      const c = attempt.items.reduce((n,it)=> n + (it.sel===it.ansIdx?1:0), 0);
-      return {correct:c, total:t, percent: t? Math.round(100*c/t):0};
-    }
-
-    function showResults(){
-      const by = breakdownBySection(attempt);
-      const g  = totalGrade(attempt);
-
-      const passA = (by.A.total===0) || (by.A.correct>=12 && by.A.total===15);
-      const passB = (by.B.total===0) || (by.B.correct>=4  && by.B.total===5);
-      const overall = (passA && passB);
-      const secAText = `${by.A.correct}/${by.A.total}`;
-      const secBText = `${by.B.correct}/${by.B.total}`;
-      const totalTxt = `${g.correct}/${g.total}`;
-
-      $("#screenQuiz").classList.add("hidden");
-      $("#screenResult").classList.remove("hidden");
-      $("#lblCandidate2").textContent = attempt.name || "Unknown";
-      $("#lblAttempt2").textContent = `Attempt #${attempt.attemptIdx}`;
-      $("#lblScore").textContent = `A ${secAText} • B ${secBText} • Total ${totalTxt} • ${g.percent}% • ${overall?'PASS':'FAIL'}`;
-
-      const mount = $("#reviewMount");
-      mount.innerHTML = "";
-      attempt.items.forEach((it, idx)=>{
-        const ok = it.sel===it.ansIdx;
-        const block = document.createElement('div');
-        block.className = "question";
-        block.innerHTML = `
-          <div class="q-head">
-            <div class="q-numb">#${idx+1}</div>
-            <div class="pill ${ok?'pill-good':'pill-bad'}">${ok?'Correct':'Incorrect'}</div>
-          </div>
-          <div class="q-text">${escapeHtml(it.q.text)}</div>
-          <div class="choices" style="margin-top:8px">
-            ${it.choices.map((c,i)=>{
-              const isAns = i===it.ansIdx;
-              const isMine = i===it.sel;
-              const style = isAns?'style="border-color:rgba(34,197,94,.7)"':'';
-              return `<div class='choice' ${style}>${escapeHtml(String.fromCharCode(97+i)+". "+c)} ${isAns?'<span class="pill pill-good" style="margin-left:8px">Answer</span>':''} ${isMine?'<span class="pill" style="margin-left:8px">Your choice</span>':''}</div>`;
-            }).join("")}
-          </div>`;
-        mount.appendChild(block);
-      });
-
-      // send to Google Form (fire-and-forget)
-      const payload = {};
-      payload[ENTRY.name]     = attempt.name || '';
-      payload[ENTRY.license]  = attempt.id || '';
-      payload[ENTRY.secA]     = secAText;
-      payload[ENTRY.secB]     = secBText;
-      payload[ENTRY.total]    = totalTxt;
-      payload[ENTRY.overall]  = overall ? 'PASS':'FAIL';
-      payload[ENTRY.startISO] = new Date(attempt.start).toISOString();
-      payload[ENTRY.endISO]   = new Date(Date.now()).toISOString();
-      postSubmissionToGoogleForm(payload);
-    }
-
-    /* ============================
-       Events
-    ============================ */
-    $("#btnStart").addEventListener('click', async ()=>{
-      const name = $("#inpName").value.trim();
-      const id   = $("#inpID").value.trim();
-      if (!name || !id){ alert("Enter Driver Name and License Number"); return; }
-
-      // enforce 2 attempts per driver per device
-      const used = attemptsFor(name,id);
-      if (used >= MAX_ATTEMPTS){
-        alert("Maximum attempts reached for this driver on this device.");
-        return;
+      if (t - t0 < durationMs){
+        this.tid = requestAnimationFrame(loop);
+      }else{
+        this.stop();
       }
+    };
+    this.tid = requestAnimationFrame(loop);
+  },
+  stop(){
+    this.running=false;
+    cancelAnimationFrame(this.tid);
+    document.getElementById('fxConfetti').classList.add('hidden');
+  }
+};
 
-      if (!BANK.length) await loadBank();
-      if (!BANK.length){ alert("Question bank not found."); return; }
+/* ======= Results & review ======= */
+function showResults(){
+  const by = breakdownBySection(attempt);
+  const g  = totalGrade(attempt);
 
-      buildAttempt(name,id);
-      renderQuizPage();
-    });
+  const passA = (by.A.total===0) || (by.A.correct>=12 && by.A.total===15);
+  const passB = (by.B.total===0) || (by.B.correct>=4  && by.B.total===5);
+  const overall = (passA && passB);
+  const secAText = `${by.A.correct}/${by.A.total}`;
+  const secBText = `${by.B.correct}/${by.B.total}`;
+  const totalTxt = `${g.correct}/${g.total}`;
 
-    $("#btnPrev").addEventListener('click', ()=>{
-      if (!attempt) return;
-      if (attempt.page>0){ attempt.page--; renderQuizPage(); }
-    });
-    $("#btnNext").addEventListener('click', ()=>{
-      if (!attempt) return;
-      const maxPage = Math.ceil(attempt.items.length / PER_PAGE) - 1;
-      if (attempt.page<maxPage){ attempt.page++; renderQuizPage(); }
-    });
+  $("#screenQuiz").classList.add("hidden");
+  $("#screenResult").classList.remove("hidden");
+  $("#lblCandidate2").textContent = attempt.name || "Unknown";
+  $("#lblAttempt2").textContent = `Attempt #${attempt.attemptIdx}`;
+  $("#lblScore").textContent = `A ${secAText} • B ${secBText} • Total ${totalTxt} • ${g.percent}% • ${overall?'PASS':'FAIL'}`;
 
-    $("#btnAbort").addEventListener('click', ()=>{
-      if (!confirm('Abort this attempt and go back to Start?')) return;
-      attempt=null;
-      $("#screenQuiz").classList.add("hidden");
-      $("#screenResult").classList.add("hidden");
-      $("#screenStart").classList.remove("hidden");
-    });
+  const mount = $("#reviewMount");
+  mount.innerHTML = "";
+  attempt.items.forEach((it, idx)=>{
+    const ok = it.sel===it.ansIdx;
+    const block = document.createElement('div');
+    block.className = "question";
+    block.innerHTML = `
+      <div class="q-head">
+        <div class="q-numb">#${idx+1}</div>
+        <div class="pill ${ok?'pill-good':'pill-bad'}">${ok?'Correct':'Incorrect'}</div>
+      </div>
+      <div class="q-text">${escapeHtml(it.q.text)}</div>
+      <div class="choices" style="margin-top:8px">
+        ${it.choices.map((c,i)=>{
+          const isAns = i===it.ansIdx;
+          const isMine = i===it.sel;
+          const style = isAns?'style="border-color:rgba(34,197,94,.7)"':'';
+          return `<div class='choice' ${style}>${escapeHtml(String.fromCharCode(97+i)+". "+c)} ${isAns?'<span class="pill pill-good" style="margin-left:8px">Answer</span>':''} ${isMine?'<span class="pill" style="margin-left:8px">Your choice</span>':''}</div>`;
+        }).join("")}
+      </div>`;
+    mount.appendChild(block);
+  });
 
-    $("#btnSubmit").addEventListener('click', ()=>{
-      if (!attempt) return;
-      const unanswered = attempt.items.filter(x=>x.sel<0).length;
-      if (unanswered>0 && !confirm(`You have ${unanswered} unanswered. Submit anyway?`)) return;
-      showResults();
+  // Pretty pass/fail experience
+  if (overall){
+    confetti.start(2800);
+    showModal({
+      title: "Great job!",
+      html: `<p class="meta" style="font-size:14px">You passed the DS-875Q. 🎉<br/>A: ${secAText} • B: ${secBText} • Total: ${totalTxt} (${g.percent}%)</p>`,
+      buttons:[{label:"Done", cls:"btn", onClick:()=>document.querySelector('.modal-backdrop')?.remove()}]
     });
+  }else{
+    // Build a clear list of misses
+    const misses = attempt.items
+      .map((it, i)=>({it, i}))
+      .filter(x=>x.it.sel!==x.it.ansIdx)
+      .map(x=>{
+        const qNum = x.i+1;
+        const sec  = String(x.it.q.section||'A').toUpperCase();
+        const your = x.it.sel>=0 ? String.fromCharCode(97+x.it.sel) : "—";
+        const corr = String.fromCharCode(97+x.it.ansIdx);
+        return `<li>Q${qNum} (Section ${sec}): you chose <b>${your}</b>, correct is <b>${corr}</b></li>`;
+      }).join("");
+
+    showModal({
+      title:"Let's review a few spots",
+      html:`<p class="meta" style="font-size:14px">You didn’t pass this time. Here’s exactly where you missed — review these and try again if you have attempts remaining.</p>
+            <ul style="line-height:1.6">${misses || "<li>No answers selected on some questions.</li>"}</ul>`,
+      buttons:[{label:"OK", cls:"btn secondary"}]
+    });
+  }
+
+  // Send to Google Form (fire-and-forget)
+  const payload = {};
+  payload[ENTRY.name]    = attempt.name || '';
+  payload[ENTRY.license] = attempt.id || '';
+  payload[ENTRY.secA]    = secAText;
+  payload[ENTRY.secB]    = secBText;
+  payload[ENTRY.total]   = totalTxt;
+  payload[ENTRY.overall] = overall ? 'PASS':'FAIL';
+  payload[ENTRY.started] = new Date(attempt.start).toISOString();
+  payload[ENTRY.ended]   = new Date(Date.now()).toISOString();
+  postSubmissionToGoogleForm(payload);
+
+  scrollTopSmooth();
+}
+
+/* ============================
+   Events
+============================ */
+$("#btnStart").addEventListener('click', async ()=>{
+  const name = $("#inpName").value.trim();
+  const id   = $("#inpID").value.trim();
+  if (!name || !id){ showModal({title:"Missing info", html:"Enter Driver Name and License Number."}); return; }
+
+  // enforce 2 attempts per driver per device
+  const used = attemptsFor(name,id);
+  if (used >= MAX_ATTEMPTS){
+    showModal({title:"Attempts reached", html:"Maximum attempts reached for this driver on this device."});
+    return;
+  }
+
+  if (!BANK.length) await loadBank();
+  if (!BANK.length){ showModal({title:"Question bank", html:"Question bank not found."}); return; }
+
+  buildAttempt(name,id);
+  renderQuizPage();
+});
+
+$("#btnPrev").addEventListener('click', ()=>{
+  if (!attempt) return;
+  if (attempt.page>0){ attempt.page--; renderQuizPage(); }
+});
+
+$("#btnNext").addEventListener('click', ()=>{
+  if (!attempt) return;
+  const maxPage = Math.ceil(attempt.items.length / PER_PAGE) - 1;
+  if (attempt.page<maxPage){ attempt.page++; renderQuizPage(); }
+});
+
+$("#btnAbort").addEventListener('click', ()=>{
+  const m = showModal({
+    title:"Abort attempt?",
+    html:"This will discard your current answers and return to Start.",
+    buttons:[
+      {label:"Cancel", cls:"btn ghost"},
+      {label:"Abort", cls:"btn danger", onClick:()=>{
+        attempt=null;
+        $("#screenQuiz").classList.add("hidden");
+        $("#screenResult").classList.add("hidden");
+        $("#screenStart").classList.remove("hidden");
+        document.querySelector('.modal-backdrop')?.remove();
+        scrollTopSmooth();
+      }}
+    ]
+  });
+});
+
+$("#btnSubmit").addEventListener('click', ()=>{
+  if (!attempt) return;
+  const unanswered = attempt.items.filter(x=>x.sel<0).length;
+  if (unanswered>0){
+    showModal({
+      title:"Unanswered questions",
+      html:`You have <b>${unanswered}</b> unanswered. Submit anyway?`,
+      buttons:[
+        {label:"Keep answering", cls:"btn ghost"},
+        {label:"Submit", cls:"btn warn", onClick:()=>{ document.querySelector('.modal-backdrop')?.remove(); showResults(); }}
+      ]
+    });
+    return;
+  }
+  showResults();
+});
+
   </script>
 
   <!-- Optional inline bank:
        If you want a one-file page (no external JSON), paste your array below and delete this comment.
-  <script id="embeddedBank" type="application/json">[{"id":"1","section":"A","text":"Sample?","choices":["A","B","C","D"],"answerIndex":0}]</script>
+  <script id="embeddedBank" type="application/json">[{"id":"1","section":"A","text":"Sample question?","choices":["A","B","C","D"],"answerIndex":0}]</script>
   -->
 </body>
 </html>
-
-
-
-
