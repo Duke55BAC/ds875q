@@ -1,575 +1,413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DS-875Q — Driver Knowledge Quiz</title>
-<style>
-  :root{
-    --bg:#0b1220; --paper:#0e1628; --card:#111c31; --ink:#e6edf7; --muted:#9fb0c9;
-    --accent:#3b82f6; --accent2:#22c55e; --warn:#f59e0b; --bad:#ef4444; --ring:#60a5fa;
-    --chip:#1b2946; --chipbd:#2a3c64; --goodbg:#05391a; --badbg:#3a0b0b;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;background:radial-gradient(1200px 700px at 20% -10%, #122043 0%, #0b1220 45%, #0b1220 100%);
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    color:var(--ink);
-  }
-  .page{max-width:980px; margin:30px auto; background:var(--paper); border:1px solid #1a2748; border-radius:14px; box-shadow:0 35px 80px rgba(0,0,0,.45); overflow:hidden}
-  .pad{padding:22px 22px}
-  .hdr{display:flex;justify-content:space-between;align-items:center;gap:12px;background:linear-gradient(180deg,#0f1a34,#0e1628);border-bottom:1px solid #1a2748;padding:18px 22px}
-  .title{font-weight:800;font-size:22px;letter-spacing:.3px}
-  .muted{color:var(--muted);font-size:12px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--chip); border:1px solid var(--chipbd); color:var(--ink); font-size:12px}
-  input[type=text], select{
-    width:100%; padding:10px 12px; border:1px solid #22345c; border-radius:10px; outline:none;
-    font-size:14px; background:#0a1326; color:#e6edf7;
-  }
-  input[type=text]:focus, select:focus{border-color:var(--ring); box-shadow:0 0 0 4px rgba(96,165,250,.16)}
-  .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}
-  .btn.primary{background:linear-gradient(180deg,#4f8df8,#306ee9); color:#041226; box-shadow:0 10px 24px rgba(59,130,246,.3)}
-  .btn.ghost{background:#0d1a36; border:1px solid #20315a; color:#cfe2ff}
-  .btn.line{background:#0a1326; border:1px solid #22345c; color:#e6edf7}
-  .btn.success{background:linear-gradient(180deg,#2fd468,#17b152); color:#05240f; box-shadow:0 10px 24px rgba(34,197,94,.3)}
-  .divider{height:1px;background:#1a2748;margin:16px 0}
-  .count{font-size:12px;color:var(--muted)}
-  .notice{background:#1a243f;border:1px solid #2b3e72;color:#c7d6ff;padding:10px 12px;border-radius:10px;margin:10px 0;font-size:13px}
-  /* Exam layout */
-  .section-banner{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:900;letter-spacing:.8px;margin:4px 0 12px;color:#d8e6ff}
-  .section-tag{background:#0f2b5e;border:1px solid #3866c4;padding:6px 10px;border-radius:999px}
-  .q{margin:10px 0 14px; background:#0b1730; border:1px solid #21325a; border-radius:10px; padding:12px}
-  .qhead{display:flex;gap:8px;align-items:flex-start}
-  .qnum{font-weight:900;margin-right:8px;color:#8ab4ff}
-  .qtext{font-size:18px; line-height:1.45; font-weight:800} /* BOLD question */
-  .choices{margin-top:10px}
-  .choice{display:flex; align-items:flex-start; gap:10px; padding:7px 8px; border-radius:8px; cursor:pointer}
-  .choice:hover{background:#0f2148}
-  /* Square paper checkboxes (radios) */
-  .checkbox{position:relative; width:18px; height:18px; border:2px solid #6b85b7; border-radius:3px; flex:0 0 18px; margin-top:2px}
-  .choice input{appearance:none; width:0; height:0; position:absolute; left:-9999px}
-  .choice input:checked + .checkbox{border-color:#7cc4ff; box-shadow:inset 0 0 0 5px #7cc4ff}
-  .letter{width:18px; text-transform:lowercase; font-weight:800; color:#b9ccff; text-align:center; margin-right:2px}
-  .ctext{font-size:16px; line-height:1.45}
-  /* Pager */
-  .pager{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px}
-  .page-chip{font-weight:800}
-  /* Slide animation */
-  .slide{position:relative; overflow:hidden; min-height:200px}
-  .panel{will-change:transform,opacity; transition:transform .35s ease, opacity .35s ease}
-  .panel.enter-from-right{transform:translateX(30px); opacity:.01}
-  .panel.enter-from-left{transform:translateX(-30px); opacity:.01}
-  .panel.active{transform:translateX(0); opacity:1}
-  /* Score chips */
-  .chip{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px}
-  .chip.good{background:var(--goodbg); color:#86efac; border:1px solid #166534}
-  .chip.bad{background:var(--badbg); color:#fecaca; border:1px solid #7f1d1d}
-  .footnote{color:#9fb0c9; font-size:12px; text-align:center; margin:10px 0 18px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DS-875Q — Driver Knowledge Quiz</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --card:#111827;      /* gray-900 */
+      --muted:#94a3b8;     /* slate-400 */
+      --text:#e5e7eb;      /* gray-200 */
+      --accent:#22c55e;    /* green-500 */
+      --accent-2:#3b82f6;  /* blue-500 */
+      --danger:#ef4444;    /* red-500 */
+      --warn:#f59e0b;      /* amber-500 */
+      --ring:#60a5fa;      /* blue-400 */
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:linear-gradient(180deg, #0b1225, #0f172a 35%, #0b1225 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:24px;}
+    .app-title{font-size:clamp(22px, 3vw, 34px); font-weight:800; letter-spacing:.5px; margin:6px 0 2px}
+    .sub{color:var(--muted); font-size:14px}
+    .card{background:rgba(17,24,39,.9); border:1px solid rgba(148,163,184,.15); border-radius:var(--radius); padding:18px; box-shadow:0 15px 40px rgba(0,0,0,.35)}
+    .grid{display:grid; gap:16px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    @media (max-width:780px){ .grid.cols-2{grid-template-columns:1fr}}
+    label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
+    input[type=text]{
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(148,163,184,.25); background:#0b1225; color:var(--text);
+      outline:none; transition:.2s border-color, .2s box-shadow;
+    }
+    input[type=text]:focus{ border-color:var(--ring); box-shadow:0 0 0 4px rgba(96,165,250,.2)}
+    .btn{appearance:none; border:0; background:var(--accent); color:#05130a; font-weight:700; padding:12px 16px; border-radius:12px; cursor:pointer; box-shadow:0 6px 20px rgba(34,197,94,.35);}    
+    .btn:hover{filter:brightness(1.05)}
+    .btn.secondary{ background:var(--accent-2); color:#041226; box-shadow:0 6px 20px rgba(59,130,246,.3)}
+    .btn.ghost{ background:transparent; border:1px solid rgba(148,163,184,.25); color:var(--text)}
+    .btn.warn{ background:var(--warn); color:#160f00 }
+    .btn.danger{ background:var(--danger); color:#2b0707 }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .space{height:10px}
+    .question{ border:1px solid rgba(148,163,184,.2); border-radius:16px; padding:16px; background:#0b1326; }
+    .q-head{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between }
+    .q-numb{ font-weight:800; background:#0a0f1d; border:1px solid rgba(148,163,184,.25); color:#93c5fd; padding:4px 10px; border-radius:999px; font-size:12px; letter-spacing:.5px }
+    .q-text{ font-size:18px; line-height:1.45; font-weight:700;}
+    .choices{ margin-top:12px; display:grid; gap:8px }
+    .choice{ position:relative; display:flex; gap:10px; align-items:flex-start; border:1px solid rgba(148,163,184,.2); background:#0c162d; padding:10px 12px; border-radius:12px; cursor:pointer; }
+    .choice:hover{ border-color:var(--ring)}
+    .choice input{ margin-top:2px }
+    .meta{ color:var(--muted); font-size:12px }
+    .progress{ height:10px; background:rgba(148,163,184,.2); border-radius:999px; overflow:hidden; border:1px solid rgba(148,163,184,.2) }
+    .progress > span{ display:block; height:100%; background:linear-gradient(90deg, var(--accent), #16a34a); width:0 }
+    .pill{ padding:6px 10px; border:1px solid rgba(148,163,184,.25); border-radius:999px; font-size:12px; color:var(--muted) }
+    .pill-good{ color:#05240f; background:rgba(34,197,94,.85); border-color:transparent }
+    .pill-bad{ color:#2b0707; background:rgba(239,68,68,.9); border-color:transparent }
+    .hidden{ display:none }
+    .divider{ height:1px; background:rgba(148,163,184,.2); margin:10px 0 }
+    .sectionLabel{ font-weight:800; color:#67e8f9; margin-bottom:6px }
+    .pager{display:flex; justify-content:space-between; gap:10px; margin-top:12px}
+  </style>
 </head>
 <body>
-  <div class="page">
-    <div class="hdr">
+  <div class="wrap">
+    <div class="row" style="justify-content:space-between; align-items:center">
       <div>
-        <div class="title">DS-875Q — Driver Knowledge Quiz</div>
-        <div class="muted">Paper-style • Bold questions • Section A & B • 5 per page • Slide transitions</div>
-      </div>
-      <div class="row">
-        <button class="btn line" id="btnLoadBank">Load Question Bank (JSON)</button>
-        <button class="btn line" id="btnConnectExcel">Connect Results Folder</button>
+        <div class="app-title">DS-875Q Driver Knowledge Quiz</div>
+        <div class="sub">Mobile-friendly • Randomized • 5-per-page • A/B labeling</div>
       </div>
     </div>
 
     <!-- START -->
-    <div id="screenStart" class="pad">
-      <div class="row" style="gap:12px">
-        <div style="flex:1 1 320px">
-          <label class="muted">Driver Name</label>
-          <input id="inpName" type="text" placeholder="e.g., Sutton, Paul B."/>
+    <div id="screenStart" class="card">
+      <div class="grid cols-2">
+        <div>
+          <label for="inpName">Driver Name</label>
+          <input type="text" id="inpName" placeholder="e.g., Paul Bryan" />
         </div>
-        <div style="flex:1 1 260px">
-          <label class="muted">Driver ID / License #</label>
-          <input id="inpID" type="text" placeholder="e.g., A123-456-789-000"/>
-        </div>
-        <div style="flex:0 0 220px">
-          <label class="muted">Section</label>
-          <select id="selSection">
-            <option value="ALL" selected>All (A15 + B5)</option>
-            <option value="A">Section A only</option>
-            <option value="B">Section B only</option>
-          </select>
+        <div>
+          <label for="inpID">License Number</label>
+          <input type="text" id="inpID" placeholder="e.g., A1234567" />
         </div>
       </div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn primary" id="btnStart">Start</button>
-        <button class="btn ghost" id="btnResume">Resume</button>
-        <span class="pill" id="lblCountHint">Looking for DS-875Q_question_bank.json…</span>
+      <div class="space"></div>
+      <div class="row">
+        <button class="btn" id="btnStart">Start Quiz</button>
       </div>
-      <div id="banner" class="notice" style="display:none"></div>
     </div>
 
     <!-- QUIZ -->
-    <div id="screenQuiz" class="pad" style="display:none">
+    <div id="screenQuiz" class="card hidden">
       <div class="row" style="justify-content:space-between; align-items:center">
-        <div class="row">
-          <span id="lblName" class="pill"></span>
+        <div class="row" style="gap:8px; align-items:center">
+          <span id="lblCandidate" class="pill"></span>
           <span id="lblSection" class="pill"></span>
           <span id="lblAttempt" class="pill"></span>
         </div>
-        <div class="pill"><span id="lblProg">0 / 0</span></div>
+        <div style="min-width:160px">
+          <div class="meta" id="lblProg">0 / 0</div>
+          <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+        </div>
       </div>
-
       <div class="divider"></div>
-
-      <div class="section-banner">
-        <span class="section-tag" id="secHeader">SECTION A</span>
-        <span class="count" id="secCount">(0/0)</span>
-      </div>
-
-      <div class="slide"><div id="quizPanel" class="panel active"></div></div>
-
+      <div id="quizMount" class="grid"></div>
       <div class="pager">
         <button class="btn ghost" id="btnPrev">← Previous</button>
-        <span class="pill page-chip" id="lblPage">Page 1 of 1</span>
-        <button class="btn primary" id="btnNext">Next →</button>
+        <button class="btn secondary" id="btnNext">Next →</button>
       </div>
-
-      <div class="divider"></div>
+      <div class="space"></div>
       <div class="row">
-        <button class="btn success" id="btnSubmit">Submit</button>
+        <button class="btn warn" id="btnSubmit">Submit</button>
         <button class="btn ghost" id="btnAbort">Abort</button>
       </div>
     </div>
 
     <!-- RESULTS -->
-    <div id="screenResult" class="pad" style="display:none">
+    <div id="screenResult" class="card hidden">
       <div class="row" style="justify-content:space-between; align-items:center">
-        <div class="row">
-          <span id="lblName2" class="pill"></span>
+        <div class="row" style="gap:8px; align-items:center">
+          <span id="lblCandidate2" class="pill"></span>
           <span id="lblAttempt2" class="pill"></span>
         </div>
-        <div id="lblScore" class="chip good">Score</div>
+        <div class="row" style="gap:8px">
+          <span id="lblScore" class="pill pill-good"></span>
+        </div>
       </div>
-      <div id="lblAB" class="muted" style="margin-top:6px"></div>
-      <div class="divider"></div>
-      <div class="row" style="gap:10px">
-        <button class="btn primary" id="btnNew">New Attempt</button>
-        <button class="btn line" id="btnDownloadCSV">Download CSV</button>
-      </div>
-      <div class="footnote" id="hostNote" style="display:none"></div>
+      <div class="space"></div>
+      <div id="reviewMount" class="grid"></div>
+      <div class="space"></div>
+      <div class="meta" id="postNote">Results were sent to the admin sheet.</div>
     </div>
-
-    <div class="footnote">Prefill via <code>#name=…&id=…</code> or <code>?name=…&id=…</code>. If local fetch is blocked, click “Load Question Bank (JSON)” once (it caches).</div>
   </div>
 
-<!-- Optional inline bank (paste exported JSON array between the script tags below if you want a self-contained page)
-<script id="embeddedBank" type="application/json">[{"id":"Q1","section":"A","text":"…","choices":["A","B","C","D"],"answerIndex":1}]</script>
--->
+  <script>
+    /* ============================
+       Google Form hookup (your IDs)
+    ============================ */
+    const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScpnw5p7_tSVDEHnyRBXCn3BhfBh9mB2FYFQQMa8up_txLv/formResponse';
+    const ENTRY = {
+      name:     'entry.335663759',   // Driver Name
+      license:  'entry.278148074',   // License Number
+      secA:     'entry.166676910',   // Section A (e.g., 12/15)
+      secB:     'entry.373047882',   // Section B (e.g., 4/5)
+      total:    'entry.2074083010',  // Total score (e.g., 16/20)
+      overall:  'entry.1567472785',  // PASS/FAIL
+      startISO: 'entry.2140359899',  // Started timestamp
+      endISO:   'entry.1657520346'   // Ended timestamp
+    };
 
-<script>
-/* ===== State ===== */
-let BANK_A=[], BANK_B=[];
-const SAMPLE_A=[{id:"A-1",section:"A",text:"Most important reason to stay alert to a hazard is:",choices:[
-  "Call law enforcement.","You’ll have time to plan your escape if it becomes an emergency.","Help impaired drivers.","Accident reports are accurate."],answerIndex:1}];
-const SAMPLE_B=[{id:"B-1",section:"B",text:"Which of these is a hazard?",choices:[
-  "Parked cars with people inside","Bridge weight signs","Freshly swept street","Painted curbs"],answerIndex:0}];
-
-const PAGE_SIZE_A = 5;
-const PAGE_SIZE_B = 5;
-
-const $ = sel => document.querySelector(sel);
-const LS_BANK = 'ds875q:bank';
-const LS_LAST = 'ds875q:last';
-
-let attempt=null;
-/* attempt = {
-   name,id,mode:'ALL'|'A'|'B', stage:'A'|'B',
-   A:{items:[{q,sel}], page:0}, B:{items:[], page:0},
-   start, end, attemptIdx:1
-} */
-
-/* ===== Bank loading (auto, resilient) ===== */
-function splitBank(arr){
-  const a=[], b=[];
-  arr.forEach(q => (((q.section||'A')+'').toUpperCase()==='B' ? b : a).push(q));
-  BANK_A=a; BANK_B=b;
-}
-
-async function loadBankAuto(){
-  // 0) URL hash or query param bank=<url>
-  try{
-    const params = new URLSearchParams(location.hash.slice(1));
-    const sparams = new URLSearchParams(location.search);
-    const bankUrl = params.get('bank') || sparams.get('bank');
-    if (bankUrl){
-      const r=await fetch(bankUrl,{cache:'no-store'}); const arr=await r.json();
-      splitBank(arr); localStorage.setItem(LS_BANK, JSON.stringify(arr));
-      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from URL`;
-      return true;
+    function toFormBody(obj){
+      return Object.entries(obj)
+        .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v==null?'':String(v))).join('&');
     }
-  }catch(e){}
-
-  // 1) Cached in browser
-  try{
-    const cached = localStorage.getItem(LS_BANK);
-    if (cached){
-      const arr=JSON.parse(cached); splitBank(arr);
-      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from browser`;
-      return true;
+    async function postSubmissionToGoogleForm(payload){
+      try{
+        await fetch(FORM_URL, {
+          method:'POST', mode:'no-cors',
+          headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+          body: toFormBody(payload)
+        });
+        console.log('✅ Sent to Google Form');
+      }catch(e){ console.warn('Form post failed:', e); }
     }
-  }catch(e){}
 
-  // 2) Inline <script id="embeddedBank">
-  try{
-    const s = document.getElementById('embeddedBank');
-    if (s && s.textContent.trim().startsWith('[')){
-      const arr = JSON.parse(s.textContent.trim()); splitBank(arr);
-      $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) embedded`;
-      return true;
+    /* ============================
+       Minimal quiz engine
+    ============================ */
+    const $ = s=>document.querySelector(s);
+    const $$ = s=>Array.from(document.querySelectorAll(s));
+
+    function hash32(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){h^=str.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0;}
+    function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; } }
+    function shuffle(arr, rng=Math.random){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+    const PER_PAGE = 5;
+    const MAX_ATTEMPTS = 2;
+    const LS_PREFIX = 'ds875q';
+    let BANK = [];
+    let attempt = null; // {name,id,items:[{q,choices,ansIdx,sel}], start, page, attemptIdx}
+
+    async function loadBank(){
+      // prefer external JSON, fallback to embedded
+      try{
+        const r = await fetch('DS-875Q_question_bank.json', {cache:'no-store'});
+        if (r.ok){ BANK = await r.json(); console.log('Loaded bank from JSON:', BANK.length); return; }
+      }catch{}
+      const embedded = document.getElementById('embeddedBank');
+      if (embedded){ BANK = JSON.parse(embedded.textContent.trim()); console.log('Loaded embedded bank:', BANK.length); }
     }
-  }catch(e){}
 
-  // 3) DS-875Q_question_bank.json (next to page)
-  try{
-    const res = await fetch('DS-875Q_question_bank.json', {cache:'no-store'});
-    if(!res.ok) throw new Error('not found');
-    const arr = await res.json(); splitBank(arr);
-    $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length})`;
-    return true;
-  }catch(e){}
+    function buildAttempt(name,id){
+      // A15 + B5 selection (or whatever bank has), answer choices shuffled
+      const seed = hash32(`${name}|${id}|${Date.now()}`);
+      const rng = mulberry32(seed);
+      const poolA = BANK.filter(q=>String(q.section).toUpperCase()==='A');
+      const poolB = BANK.filter(q=>String(q.section).toUpperCase()==='B');
 
-  // 4) SAMPLE fallback
-  BANK_A = SAMPLE_A; BANK_B = SAMPLE_B;
-  $('#lblCountHint').textContent=`Loaded SAMPLE bank (A:${BANK_A.length} B:${BANK_B.length})`;
-  const b=$('#banner'); b.style.display='block';
-  b.textContent='Could not auto-load the question bank. If you opened this from disk and Edge blocked local file access, click “Load Question Bank (JSON)” once or open via http://localhost.';
-  return false;
-}
+      const pickA = shuffle(poolA,rng).slice(0, Math.min(15, poolA.length));
+      const pickB = shuffle(poolB,rng).slice(0, Math.min(5,  poolB.length));
+      const picked = pickA.concat(pickB);
 
-// Manual loader (file picker) — caches for future auto-load
-$('#btnLoadBank')?.addEventListener('click', async ()=>{
-  try{
-    if(!window.showOpenFilePicker){
-      alert('Your browser blocked the picker here. Use http://localhost or Edge 86+.');
-      return;
-    }
-    const [fh] = await window.showOpenFilePicker({
-      types:[{description:'JSON', accept:{'application/json':['.json']}}], multiple:false
-    });
-    const file = await fh.getFile(); const text = await file.text(); const arr = JSON.parse(text);
-    splitBank(arr); localStorage.setItem(LS_BANK, JSON.stringify(arr));
-    alert(`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}). This will auto-load next time.`);
-    $('#lblCountHint').textContent=`Loaded ${arr.length} questions (A:${BANK_A.length} B:${BANK_B.length}) from browser`;
-  }catch(e){ console.warn(e); alert('No file selected or invalid JSON.'); }
-});
-
-/* ===== Attempt / Paging ===== */
-function shuffle(a){const b=a.slice(); for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]} return b}
-
-function buildAttempt(name,id,mode){
-  let Aitems=[], Bitems=[];
-  if(mode==='ALL' || mode==='A'){
-    Aitems = shuffle(BANK_A).slice(0, Math.min(15,BANK_A.length)).map(q=>({q,sel:-1}));
-  }
-  if(mode==='ALL' || mode==='B'){
-    Bitems = shuffle(BANK_B).slice(0, Math.min(5,BANK_B.length)).map(q=>({q,sel:-1}));
-  }
-  attempt = {
-    name, id, mode,
-    stage: (mode==='B' ? 'B' : 'A'),   // track which section we’re on in ALL mode
-    A:{items:Aitems, page:0},
-    B:{items:Bitems, page:0},
-    start:Date.now(), end:0, attemptIdx:1
-  };
-  localStorage.setItem(LS_LAST, JSON.stringify(attempt));
-  return attempt;
-}
-
-function currentSection(){
-  // single-section modes are fixed
-  if (attempt.mode==='A') return 'A';
-  if (attempt.mode==='B') return 'B';
-  // ALL mode: use stage flag
-  return attempt.stage === 'B' ? 'B' : 'A';
-}
-
-function totalPagesFor(sec){
-  const arr = attempt[sec].items;
-  const psz = (sec==='A') ? PAGE_SIZE_A : PAGE_SIZE_B;
-  return Math.max(1, Math.ceil(arr.length / psz));
-}
-
-function setScreen(id){["screenStart","screenQuiz","screenResult"].forEach(x=>document.getElementById(x).style.display='none'); document.getElementById(id).style.display='block'}
-
-function renderQuiz(){
-  setScreen("screenQuiz");
-  $("#lblName").textContent=attempt.name||"";
-  $("#lblAttempt").textContent="Attempt #"+(attempt.attemptIdx||1);
-  $("#lblSection").textContent=(attempt.mode==='ALL'?"A then B":("Section "+attempt.mode));
-  updateProg();
-  renderPage('enter'); // initial paint
-}
-
-function renderPage(direction){
-  const sec = currentSection();
-  const psz = (sec==='A') ? PAGE_SIZE_A : PAGE_SIZE_B;
-  const page = attempt[sec].page;
-  const items = attempt[sec].items;
-  const start = page*psz;
-  const slice = items.slice(start, start+psz);
-
-  $("#secHeader").textContent = (sec==='A' ? "SECTION A" : "SECTION B");
-  $("#secCount").textContent = `(${Math.min(start+slice.length, items.length)}/${items.length})`;
-
-  const totalPages = totalPagesFor(sec);
-  $("#lblPage").textContent = `Page ${page+1} of ${totalPages}`;
-
-  // Build page panel
-  const panel = document.createElement('div');
-  panel.className = 'panel active';
-  panel.innerHTML = slice.map((it, idx)=>{
-    const n = start + idx + 1;
-    const letters = ['a','b','c','d','e','f'];
-    const choices = (it.q.choices||[]).map((c,i)=>`
-      <label class="choice">
-        <input type="radio" name="q${sec}_${start+idx}" value="${i}" ${it.sel===i?'checked':''}>
-        <span class="checkbox"></span>
-        <span class="letter">${letters[i]||''}.</span>
-        <span class="ctext">${escapeHtml(c||'')}</span>
-      </label>
-    `).join('');
-    return `
-      <div class="q">
-        <div class="qhead"><span class="qnum">${n}.</span><span class="qtext">${escapeHtml(it.q.text||'')}</span></div>
-        <div class="choices">${choices}</div>
-      </div>
-    `;
-  }).join('');
-
-  // Wire changes
-  slice.forEach((it, idx)=>{
-    panel.querySelectorAll(`input[name="q${sec}_${start+idx}"]`).forEach(r=>{
-      r.addEventListener('change', e=>{
-        it.sel = parseInt(e.target.value,10);
-        localStorage.setItem(LS_LAST, JSON.stringify(attempt));
-        updateProg();
+      const items = picked.map(q=>{
+        const ch = shuffle(q.choices, rng);
+        const ansIdx = ch.findIndex(x=>x===q.choices[q.answerIndex]);
+        return { q, choices: ch, ansIdx, sel:-1 };
       });
+
+      const key = `${LS_PREFIX}|${name}|${id}|count`;
+      const soFar = parseInt(localStorage.getItem(key)||'0',10);
+      localStorage.setItem(key, String(soFar+1));
+
+      attempt = { name, id, items, start:Date.now(), page:0, attemptIdx: soFar+1 };
+    }
+
+    function attemptsFor(name,id){
+      const key = `${LS_PREFIX}|${name}|${id}|count`;
+      return parseInt(localStorage.getItem(key)||'0',10);
+    }
+
+    function renderQuizPage(){
+      $("#screenStart").classList.add("hidden");
+      $("#screenResult").classList.add("hidden");
+      $("#screenQuiz").classList.remove("hidden");
+
+      $("#lblCandidate").textContent = attempt.name || "Unknown";
+      $("#lblSection").textContent = "A + B (20 questions)";
+      $("#lblAttempt").textContent = `Attempt #${attempt.attemptIdx}`;
+
+      const startIdx = attempt.page * PER_PAGE;
+      const pageItems = attempt.items.slice(startIdx, startIdx + PER_PAGE);
+
+      const mount = $("#quizMount");
+      mount.innerHTML = "";
+
+      pageItems.forEach((it, idx)=>{
+        const abs = startIdx + idx;
+        const div = document.createElement('div');
+        div.className = "question";
+        div.innerHTML = `
+          <div class="q-head">
+            <div class="q-numb">#${abs+1}</div>
+            <div class="sectionLabel">Section ${it.q.section}</div>
+          </div>
+          <div class="q-text">${escapeHtml(it.q.text)}</div>
+          <div class="choices">
+            ${it.choices.map((c,i)=>`
+              <label class="choice">
+                <input type="radio" name="q${abs}" value="${i}" ${it.sel===i?"checked":""}/>
+                <div>${escapeHtml(String.fromCharCode(97+i)+". "+c)}</div>
+              </label>
+            `).join("")}
+          </div>
+        `;
+        mount.appendChild(div);
+      });
+
+      // wire radios
+      $$("input[type=radio]").forEach(r=>{
+        r.addEventListener('change', e=>{
+          const nm = e.target.name; // q#
+          const abs = parseInt(nm.slice(1),10);
+          attempt.items[abs].sel = parseInt(e.target.value,10);
+          updateProgress();
+        });
+      });
+
+      const total = attempt.items.length;
+      const answered = attempt.items.filter(x=>x.sel>=0).length;
+      $("#lblProg").textContent = `${answered} / ${total}`;
+      $("#bar").style.width = Math.round(100*answered/total) + "%";
+
+      $("#btnPrev").disabled = attempt.page===0;
+      $("#btnNext").disabled = (startIdx + PER_PAGE) >= total;
+    }
+
+    function updateProgress(){
+      const total = attempt.items.length;
+      const answered = attempt.items.filter(x=>x.sel>=0).length;
+      $("#lblProg").textContent = `${answered} / ${total}`;
+      $("#bar").style.width = Math.round(100*answered/total) + "%";
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function breakdownBySection(attempt){
+      const by = {A:{correct:0,total:0}, B:{correct:0,total:0}};
+      attempt.items.forEach(it=>{
+        const sec = String(it.q.section||'A').toUpperCase();
+        if (!by[sec]) return;
+        by[sec].total++;
+        if (it.sel===it.ansIdx) by[sec].correct++;
+      });
+      return by;
+    }
+    function totalGrade(attempt){
+      const t = attempt.items.length;
+      const c = attempt.items.reduce((n,it)=> n + (it.sel===it.ansIdx?1:0), 0);
+      return {correct:c, total:t, percent: t? Math.round(100*c/t):0};
+    }
+
+    function showResults(){
+      const by = breakdownBySection(attempt);
+      const g  = totalGrade(attempt);
+
+      const passA = (by.A.total===0) || (by.A.correct>=12 && by.A.total===15);
+      const passB = (by.B.total===0) || (by.B.correct>=4  && by.B.total===5);
+      const overall = (passA && passB);
+      const secAText = `${by.A.correct}/${by.A.total}`;
+      const secBText = `${by.B.correct}/${by.B.total}`;
+      const totalTxt = `${g.correct}/${g.total}`;
+
+      $("#screenQuiz").classList.add("hidden");
+      $("#screenResult").classList.remove("hidden");
+      $("#lblCandidate2").textContent = attempt.name || "Unknown";
+      $("#lblAttempt2").textContent = `Attempt #${attempt.attemptIdx}`;
+      $("#lblScore").textContent = `A ${secAText} • B ${secBText} • Total ${totalTxt} • ${g.percent}% • ${overall?'PASS':'FAIL'}`;
+
+      const mount = $("#reviewMount");
+      mount.innerHTML = "";
+      attempt.items.forEach((it, idx)=>{
+        const ok = it.sel===it.ansIdx;
+        const block = document.createElement('div');
+        block.className = "question";
+        block.innerHTML = `
+          <div class="q-head">
+            <div class="q-numb">#${idx+1}</div>
+            <div class="pill ${ok?'pill-good':'pill-bad'}">${ok?'Correct':'Incorrect'}</div>
+          </div>
+          <div class="q-text">${escapeHtml(it.q.text)}</div>
+          <div class="choices" style="margin-top:8px">
+            ${it.choices.map((c,i)=>{
+              const isAns = i===it.ansIdx;
+              const isMine = i===it.sel;
+              const style = isAns?'style="border-color:rgba(34,197,94,.7)"':'';
+              return `<div class='choice' ${style}>${escapeHtml(String.fromCharCode(97+i)+". "+c)} ${isAns?'<span class="pill pill-good" style="margin-left:8px">Answer</span>':''} ${isMine?'<span class="pill" style="margin-left:8px">Your choice</span>':''}</div>`;
+            }).join("")}
+          </div>`;
+        mount.appendChild(block);
+      });
+
+      // send to Google Form (fire-and-forget)
+      const payload = {};
+      payload[ENTRY.name]     = attempt.name || '';
+      payload[ENTRY.license]  = attempt.id || '';
+      payload[ENTRY.secA]     = secAText;
+      payload[ENTRY.secB]     = secBText;
+      payload[ENTRY.total]    = totalTxt;
+      payload[ENTRY.overall]  = overall ? 'PASS':'FAIL';
+      payload[ENTRY.startISO] = new Date(attempt.start).toISOString();
+      payload[ENTRY.endISO]   = new Date(Date.now()).toISOString();
+      postSubmissionToGoogleForm(payload);
+    }
+
+    /* ============================
+       Events
+    ============================ */
+    $("#btnStart").addEventListener('click', async ()=>{
+      const name = $("#inpName").value.trim();
+      const id   = $("#inpID").value.trim();
+      if (!name || !id){ alert("Enter Driver Name and License Number"); return; }
+
+      // enforce 2 attempts per driver per device
+      const used = attemptsFor(name,id);
+      if (used >= MAX_ATTEMPTS){
+        alert("Maximum attempts reached for this driver on this device.");
+        return;
+      }
+
+      if (!BANK.length) await loadBank();
+      if (!BANK.length){ alert("Question bank not found."); return; }
+
+      buildAttempt(name,id);
+      renderQuizPage();
     });
-  });
 
-  // Slide animation swap
-  const old = document.getElementById('quizPanel');
-  const wrapper = old.parentElement;
-  const newcomer = panel;
-  newcomer.classList.add(direction==='left'?'enter-from-left':'enter-from-right');
-  wrapper.appendChild(newcomer);
-  requestAnimationFrame(()=>{
-    newcomer.classList.add('active');
-    old.classList.remove('active');
-    setTimeout(()=>{ if(old && old!==newcomer) old.remove(); }, 350);
-  });
-  newcomer.id = 'quizPanel';
+    $("#btnPrev").addEventListener('click', ()=>{
+      if (!attempt) return;
+      if (attempt.page>0){ attempt.page--; renderQuizPage(); }
+    });
+    $("#btnNext").addEventListener('click', ()=>{
+      if (!attempt) return;
+      const maxPage = Math.ceil(attempt.items.length / PER_PAGE) - 1;
+      if (attempt.page<maxPage){ attempt.page++; renderQuizPage(); }
+    });
 
-  updateNavButtons();
-}
+    $("#btnAbort").addEventListener('click', ()=>{
+      if (!confirm('Abort this attempt and go back to Start?')) return;
+      attempt=null;
+      $("#screenQuiz").classList.add("hidden");
+      $("#screenResult").classList.add("hidden");
+      $("#screenStart").classList.remove("hidden");
+    });
 
-function updateNavButtons(){
-  const sec = currentSection();
-  const onFirstOverall = (attempt.mode==='ALL')
-    ? (attempt.stage==='A' && attempt.A.page===0)
-    : (attempt[sec].page===0);
+    $("#btnSubmit").addEventListener('click', ()=>{
+      if (!attempt) return;
+      const unanswered = attempt.items.filter(x=>x.sel<0).length;
+      if (unanswered>0 && !confirm(`You have ${unanswered} unanswered. Submit anyway?`)) return;
+      showResults();
+    });
+  </script>
 
-  const onLastOverall = (attempt.mode==='ALL')
-    ? (attempt.stage==='B' && attempt.B.page === totalPagesFor('B')-1)
-    : (attempt[sec].page === totalPagesFor(sec)-1);
-
-  $('#btnPrev').disabled = onFirstOverall;
-  $('#btnNext').disabled = false;             // allow Next until last page
-  $('#btnSubmit').disabled = !onLastOverall;  // only enable Submit on very last page
-}
-
-function nextPage(){
-  const sec = currentSection();
-  const totalPages = totalPagesFor(sec);
-
-  if (attempt[sec].page < totalPages-1){
-    // next page within the same section
-    attempt[sec].page++;
-    renderPage('right');
-    return;
-  }
-
-  // at last page of this section
-  if (attempt.mode==='ALL' && sec==='A'){
-    // switch to Section B
-    attempt.stage = 'B';
-    attempt.B.page = 0;
-    renderPage('right');
-    return;
-  }
-
-  // already at last page of last section → nothing (Submit is enabled)
-}
-
-function prevPage(){
-  const sec = currentSection();
-
-  if (attempt.mode==='ALL' && sec==='B' && attempt.B.page===0){
-    // jump back into A’s last page
-    attempt.stage = 'A';
-    attempt.A.page = totalPagesFor('A') - 1;
-    renderPage('left');
-    return;
-  }
-
-  if (attempt[sec].page > 0){
-    attempt[sec].page--;
-    renderPage('left');
-  }
-}
-
-function updateProg(){
-  const total = (attempt.A.items.length + attempt.B.items.length) || attempt[attempt.mode]?.items?.length || 0;
-  const answeredA = attempt.A.items.filter(x=>x.sel>=0).length;
-  const answeredB = attempt.B.items.filter(x=>x.sel>=0).length;
-  const answered = answeredA + answeredB;
-  $("#lblProg").textContent = `${answered} / ${total}`;
-}
-
-/* ===== Grade & Results ===== */
-function escapeHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-function grade(){
-  let correct=0, total=0;
-  const all = [].concat(attempt.A.items, attempt.B.items);
-  total = all.length;
-  all.forEach(it=>{ if(it.sel===it.q.answerIndex) correct++; });
-  const percent = total? Math.round(100*correct/total) : 0;
-  return {correct,total,percent};
-}
-function gradeBySection(){
-  const g={A:{correct:0,total:0},B:{correct:0,total:0}};
-  attempt.A.items.forEach(it=>{ g.A.total++; if(it.sel===it.q.answerIndex) g.A.correct++; });
-  attempt.B.items.forEach(it=>{ g.B.total++; if(it.sel===it.q.answerIndex) g.B.correct++; });
-  return g;
-}
-
-function showResults(){
-  const g=grade(), by=gradeBySection(), needA=12, needB=4;
-  const passA = by.A.total ? (by.A.correct >= Math.min(needA, by.A.total)) : (attempt.mode==='B' ? true : false);
-  const passB = by.B.total ? (by.B.correct >= Math.min(needB, by.B.total)) : (attempt.mode==='A' ? true : false);
-  const overall = (attempt.mode==='ALL') ? (passA && passB) : (attempt.mode==='A' ? passA : passB);
-
-  attempt.end = Date.now(); localStorage.setItem(LS_LAST, JSON.stringify(attempt));
-
-  setScreen("screenResult");
-  $("#lblName2").textContent=attempt.name||"";
-  $("#lblAttempt2").textContent="Attempt #"+(attempt.attemptIdx||1);
-  const scoreEl=$("#lblScore");
-  scoreEl.textContent=`Score: ${g.correct}/${g.total} (${g.percent}%) — ${overall?'PASS':'FAIL'}`;
-  scoreEl.className="chip " + (overall?'good':'bad');
-
-  const parts=[];
-  if (attempt.mode!=='B') parts.push(`Section A: ${by.A.correct}/${by.A.total} — ${by.A.total? (passA?'PASS':'FAIL') : 'N/A'}`);
-  if (attempt.mode!=='A') parts.push(`Section B: ${by.B.correct}/${by.B.total} — ${by.B.total? (passB?'PASS':'FAIL') : 'N/A'}`);
-  $("#lblAB").textContent = parts.join("   |   ");
-
-  saveAttemptToExcelFolder(g,by,passA,passB,overall);
-}
-
-/* ===== Results → Excel folder ===== */
-let resultsDirHandle=null;
-$('#btnConnectExcel').addEventListener('click', async ()=>{
-  try{
-    if(!('showDirectoryPicker' in window)) return alert("Folder access needs Edge on http://localhost. If blocked, use Download CSV.");
-    resultsDirHandle=await window.showDirectoryPicker();
-    const fh=await resultsDirHandle.getFileHandle('✅Edge_Connected.txt',{create:true});
-    const w=await fh.createWritable(); await w.write('Connected '+new Date().toISOString()); await w.close();
-    const note=$("#hostNote"); if(note){note.style.display='block'; note.textContent='Connected to results folder.'}
-    alert('Connected. A test file was created in the folder.');
-  }catch(e){console.warn(e); alert('Folder not selected or permission denied.');}
-});
-function csvQ(v){return '"' + String(v).replace(/"/g,'""') + '"'}
-async function saveAttemptToExcelFolder(g,by,passA,passB,overall){
-  if(!resultsDirHandle) return;
-  try{
-    const ts=new Date().toISOString().replace(/[:.]/g,'-');
-    const safe=(attempt.name||'attempt').replace(/[^a-z0-9_\- ]/gi,'_').slice(0,60);
-    const fn=`DS-875Q_${safe}_${ts}.csv`;
-    const fh=await resultsDirHandle.getFileHandle(fn,{create:true});
-    const w=await fh.createWritable();
-    const rows=[["Driver","ID","Section","Correct","Total","Percent","A_Correct","A_Total","A_Pass","B_Correct","B_Total","B_Pass","OverallPass","StartedISO","EndedISO","Attempt#"],
-                [attempt.name||"",attempt.id||"",attempt.mode||"",g.correct,g.total,g.percent,by.A.correct,by.A.total,passA?"PASS":"FAIL",by.B.correct,by.B.total,passB?"PASS":"FAIL",overall?"PASS":"FAIL",new Date(attempt.start).toISOString(),new Date(attempt.end||Date.now()).toISOString(),attempt.attemptIdx||1]];
-    const csv=rows.map(r=>r.map(csvQ).join(",")).join("\n"); await w.write(csv); await w.close();
-  }catch(e){console.warn("Save CSV failed",e);}
-}
-
-/* ===== UI flows ===== */
-document.getElementById("btnStart").addEventListener("click", async ()=>{
-  if(!BANK_A.length && !BANK_B.length) await loadBankAuto();
-  const name=$("#inpName").value.trim(), id=$("#inpID").value.trim(), section=$("#selSection").value;
-  if(!name) return alert("Enter driver name");
-  buildAttempt(name,id,section); renderQuiz();
-});
-document.getElementById("btnResume").addEventListener("click",()=>{
-  try{
-    const raw=localStorage.getItem(LS_LAST); if(!raw) return alert('No saved attempt on this device.');
-    attempt=JSON.parse(raw); renderQuiz();
-  }catch{ alert('Could not resume.'); }
-});
-document.getElementById("btnNext").addEventListener("click", nextPage);
-document.getElementById("btnPrev").addEventListener("click", prevPage);
-
-document.getElementById("btnSubmit").addEventListener("click", ()=>{
-  const total = (attempt.A.items.length + attempt.B.items.length);
-  const answered = attempt.A.items.filter(x=>x.sel>=0).length + attempt.B.items.filter(x=>x.sel>=0).length;
-  const un = total - answered;
-  if (un>0 && !confirm(`You have ${un} unanswered. Submit anyway?`)) return;
-  showResults();
-});
-
-document.getElementById("btnAbort").addEventListener("click",()=>{
-  if(confirm("Abort attempt?")){
-    localStorage.removeItem(LS_LAST); location.reload();
-  }
-});
-document.getElementById("btnNew").addEventListener("click",()=>{
-  localStorage.removeItem(LS_LAST); location.reload();
-});
-
-document.getElementById("btnDownloadCSV").addEventListener("click",()=>{
-  const g=grade(), by=gradeBySection(), needA=12, needB=4;
-  const passA = by.A.total ? (by.A.correct >= Math.min(needA, by.A.total)) : (attempt.mode==='B' ? true : false);
-  const passB = by.B.total ? (by.B.correct >= Math.min(needB, by.B.total)) : (attempt.mode==='A' ? true : false);
-  const overall = (attempt.mode==='ALL') ? (passA && passB) : (attempt.mode==='A' ? passA : passB);
-
-  const rows=[["Driver","ID","Section","Correct","Total","Percent","A_Correct","A_Total","A_Pass","B_Correct","B_Total","B_Pass","OverallPass","StartedISO","EndedISO","Attempt#"],
-              [attempt.name||"",attempt.id||"",attempt.mode||"",g.correct,g.total,g.percent,by.A.correct,by.A.total,passA?"PASS":"FAIL",by.B.correct,by.B.total,passB?"PASS":"FAIL",overall?"PASS":"FAIL",new Date(attempt.start).toISOString(),new Date(attempt.end||Date.now()).toISOString(),attempt.attemptIdx||1]];
-  const csv=rows.map(r=>r.map(csvQ).join(",")).join("\n");
-  const blob=new Blob([csv],{type:"text/csv"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`DS-875Q_${(attempt.name||'attempt').replace(/[^a-z0-9_\- ]/gi,'_')}.csv`; a.click(); URL.revokeObjectURL(a.href);
-});
-
-/* Prefill name/id from #hash or ?query */
-(function prefill(){
-  const h=new URLSearchParams(location.hash.slice(1));
-  const q=new URLSearchParams(location.search);
-  const nm=h.get("name")||q.get("name"), id=h.get("id")||q.get("id");
-  if(nm) $("#inpName").value=decodeURIComponent(nm);
-  if(id) $("#inpID").value=decodeURIComponent(id);
-})();
-
-/* Boot */
-loadBankAuto();
-
-/* Helpful inline JS error banner */
-window.addEventListener('error', e=>{
-  const d=document.createElement('div');
-  d.style.cssText='background:#2a0e0e;border:1px solid #7f1d1d;color:#fecaca;padding:10px;margin:10px 22px;font:13px system-ui;border-radius:10px';
-  d.textContent='Error: '+ (e.message||e.error||e.filename||'Unknown');
-  document.querySelector('.page')?.prepend(d);
-});
-</script>
+  <!-- Optional inline bank:
+       If you want a one-file page (no external JSON), paste your array below and delete this comment.
+  <script id="embeddedBank" type="application/json">[{"id":"1","section":"A","text":"Sample?","choices":["A","B","C","D"],"answerIndex":0}]</script>
+  -->
 </body>
 </html>
