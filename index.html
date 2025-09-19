@@ -94,7 +94,6 @@
 
     .pager{display:flex; justify-content:space-between; gap:10px; margin-top:12px}
 
-    /* Page mount animation */
     .mount-anim{ animation: fadeSlide .35s ease }
 
     /* Modal (message box) */
@@ -114,7 +113,6 @@
     .modal-b{ padding:16px }
     .modal-f{ padding:12px 16px; background:#0b1225; border-top:1px solid rgba(148,163,184,.18); display:flex; justify-content:flex-end; gap:10px }
 
-    /* Confetti canvas sits above content */
     #fxConfetti{ position:fixed; inset:0; pointer-events:none; z-index:60 }
   </style>
 </head>
@@ -225,7 +223,7 @@ async function postSubmissionToGoogleForm(payload){
 }
 
 /* ============================
-   Minimal quiz engine (+ polish)
+   Utilities
 ============================ */
 const $ = s=>document.querySelector(s);
 const $$ = s=>Array.from(document.querySelectorAll(s));
@@ -240,6 +238,37 @@ const LS_PREFIX = 'ds875q';
 let BANK = [];
 let attempt = null; // {name,id,items:[{q,choices,ansIdx,sel}], start, page, attemptIdx}
 
+/* ============================
+   SFX (WebAudio, no files)
+============================ */
+const SFX = (() => {
+  let ctx;
+  function ac(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+  function tone(freq=440, dur=0.12, type='sine', vol=0.12, when=0){
+    const c = ac();
+    const t0 = c.currentTime + when;
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g).connect(c.destination);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.start(t0);
+    o.stop(t0 + dur + 0.02);
+  }
+  function page(){ tone(520, 0.07, 'triangle', 0.10, 0); tone(660, 0.07, 'triangle', 0.08, 0.05); }
+  function pass(){ tone(784, 0.12, 'sine', 0.14, 0); tone(988, 0.15, 'sine', 0.14, 0.10); tone(1047, 0.18, 'sine', 0.14, 0.22); }
+  function fail(){ tone(440, 0.14, 'sine', 0.12, 0); tone(370, 0.16, 'sine', 0.10, 0.10); tone(294, 0.18, 'sine', 0.09, 0.22); }
+  function click(){ tone(1200, 0.03, 'square', 0.06, 0); } // subtle tick on answer select
+  return { page, pass, fail, click };
+})();
+
+/* ============================
+   Bank load & attempt build
+============================ */
 async function loadBank(){
   // prefer external JSON, fallback to embedded
   try{
@@ -278,8 +307,10 @@ function attemptsFor(name,id){
   return parseInt(localStorage.getItem(key)||'0',10);
 }
 
+/* ============================
+   UI helpers
+============================ */
 function scrollTopSmooth(){
-  // ensures each page starts at the top of the viewport
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -297,9 +328,7 @@ function renderQuizPage(){
 
   const mount = $("#quizMount");
   mount.innerHTML = "";
-  mount.classList.remove("mount-anim"); // restart animation
-  void mount.offsetWidth;
-  mount.classList.add("mount-anim");
+  mount.classList.remove("mount-anim"); void mount.offsetWidth; mount.classList.add("mount-anim");
 
   pageItems.forEach((it, idx)=>{
     const abs = startIdx + idx;
@@ -330,6 +359,7 @@ function renderQuizPage(){
       const abs = parseInt(nm.slice(1),10);
       attempt.items[abs].sel = parseInt(e.target.value,10);
       updateProgress();
+      SFX.click(); // subtle click on answer select
     });
   });
 
@@ -337,8 +367,8 @@ function renderQuizPage(){
   $("#btnPrev").disabled = attempt.page===0;
   $("#btnNext").disabled = (startIdx + PER_PAGE) >= attempt.items.length;
 
-  // start this page at the top
   scrollTopSmooth();
+  SFX.page(); // page flip sound
 }
 
 function updateProgress(){
@@ -352,24 +382,10 @@ function escapeHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function breakdownBySection(att){
-  const by = {A:{correct:0,total:0}, B:{correct:0,total:0}};
-  att.items.forEach(it=>{
-    const sec = String(it.q.section||'A').toUpperCase();
-    if (!by[sec]) return;
-    by[sec].total++;
-    if (it.sel===it.ansIdx) by[sec].correct++;
-  });
-  return by;
-}
-function totalGrade(att){
-  const t = att.items.length;
-  const c = att.items.reduce((n,it)=> n + (it.sel===it.ansIdx?1:0), 0);
-  return {correct:c, total:t, percent: t? Math.round(100*c/t):0};
-}
-
-/* ======= Pretty message box (modal) ======= */
-function showModal({title="Notice", html="", buttons=[{label:"OK", cls:"btn", onClick:closeModal}] , tone="neutral"}={}){
+/* ============================
+   Modal (pretty message box)
+============================ */
+function showModal({title="Notice", html="", buttons=[{label:"OK", cls:"btn", onClick:closeModal}] }={}){
   const bd = document.createElement('div');
   bd.className = 'modal-backdrop';
   const box = document.createElement('div');
@@ -395,13 +411,13 @@ function showModal({title="Notice", html="", buttons=[{label:"OK", cls:"btn", on
   });
   box.querySelector('#xClose').addEventListener('click', closeModal);
 
-  function closeModal(){
-    bd.remove();
-  }
+  function closeModal(){ bd.remove(); }
   return {close: closeModal, root: bd};
 }
 
-/* ======= Confetti (pass animation) ======= */
+/* ============================
+   Confetti (pass animation)
+============================ */
 const confetti = {
   running:false, tid:null,
   start(durationMs=2500){
@@ -455,7 +471,26 @@ const confetti = {
   }
 };
 
-/* ======= Results & review ======= */
+/* ============================
+   Results & review
+============================ */
+function breakdownBySection(att){
+  const by = {A:{correct:0,total:0}, B:{correct:0,total:0}};
+  att.items.forEach(it=>{
+    const sec = String(it.q.section||'A').toUpperCase();
+    if (!by[sec]) return;
+    by[sec].total++;
+    if (it.sel===it.ansIdx) by[sec].correct++;
+  });
+  return by;
+}
+
+function totalGrade(att){
+  const t = att.items.length;
+  const c = att.items.reduce((n,it)=> n + (it.sel===it.ansIdx?1:0), 0);
+  return {correct:c, total:t, percent: t? Math.round(100*c/t):0};
+}
+
 function showResults(){
   const by = breakdownBySection(attempt);
   const g  = totalGrade(attempt);
@@ -496,16 +531,16 @@ function showResults(){
     mount.appendChild(block);
   });
 
-  // Pretty pass/fail experience
   if (overall){
     confetti.start(2800);
+    SFX.pass();
     showModal({
       title: "Great job!",
       html: `<p class="meta" style="font-size:14px">You passed the DS-875Q. 🎉<br/>A: ${secAText} • B: ${secBText} • Total: ${totalTxt} (${g.percent}%)</p>`,
-      buttons:[{label:"Done", cls:"btn", onClick:()=>document.querySelector('.modal-backdrop')?.remove()}]
+      buttons:[{label:"Done", cls:"btn"}]
     });
   }else{
-    // Build a clear list of misses
+    SFX.fail();
     const misses = attempt.items
       .map((it, i)=>({it, i}))
       .filter(x=>x.it.sel!==x.it.ansIdx)
@@ -525,7 +560,6 @@ function showResults(){
     });
   }
 
-  // Send to Google Form (fire-and-forget)
   const payload = {};
   payload[ENTRY.name]    = attempt.name || '';
   payload[ENTRY.license] = attempt.id || '';
@@ -548,7 +582,6 @@ $("#btnStart").addEventListener('click', async ()=>{
   const id   = $("#inpID").value.trim();
   if (!name || !id){ showModal({title:"Missing info", html:"Enter Driver Name and License Number."}); return; }
 
-  // enforce 2 attempts per driver per device
   const used = attemptsFor(name,id);
   if (used >= MAX_ATTEMPTS){
     showModal({title:"Attempts reached", html:"Maximum attempts reached for this driver on this device."});
@@ -574,7 +607,7 @@ $("#btnNext").addEventListener('click', ()=>{
 });
 
 $("#btnAbort").addEventListener('click', ()=>{
-  const m = showModal({
+  showModal({
     title:"Abort attempt?",
     html:"This will discard your current answers and return to Start.",
     buttons:[
@@ -607,7 +640,6 @@ $("#btnSubmit").addEventListener('click', ()=>{
   }
   showResults();
 });
-
   </script>
 
   <!-- Optional inline bank:
