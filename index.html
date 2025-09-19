@@ -136,19 +136,21 @@
   </div>
 
   <script>
-    /* ============================
-       Google Form hookup (your IDs)
-    ============================ */
-     const FORM_URL = "https://docs.google.com/forms/d/e/1Lz03OR3NqH9_zWX2eYixm0aevetzf7IXHMuVHoRMefw/formResponse";
-     const ENTRY = {
-      name:     'entry.335663759',   // Driver Name
-      license:  'entry.278148074',   // License Number
-      secA:     'entry.166676910',   // Section A (e.g., 12/15)
-      secB:     'entry.373047882',   // Section B (e.g., 4/5)
-      total:    'entry.2074083010',  // Total score (e.g., 16/20)
-      overall:  'entry.1567472785',  // PASS/FAIL
-      startISO: 'entry.2140359899',  // Started timestamp
-      endISO:   'entry.1657520346'   // Ended timestamp
+   // Correct Google Form submission URL
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScpnw5p7_tSVVDEHnyRBXC8N3fhBPh9mB2fYFOQMa8up_txLw/formResponse";
+
+// Correct entry IDs from your form
+const ENTRY = {
+  name:     "entry.335663759",
+  license:  "entry.278148074",
+  secA:     "entry.1666776910",
+  secB:     "entry.373048782",
+  total:    "entry.2074083010",
+  overall:  "entry.1567472785",
+  started:  "entry.2140359809",
+  ended:    "entry.1657520346"
+};
+
     };
 
     function toFormBody(obj){
@@ -411,6 +413,7 @@
   -->
 </body>
 </html>
+
 
 
 
